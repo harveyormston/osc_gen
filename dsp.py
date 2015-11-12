@@ -1,10 +1,14 @@
+""" Process waveformas """
+
 from numpy import floor
 from numpy import ceil
 
 
 class Processor():
+    """ Processor """
 
     def __init__(self):
+        """ Init """
 
         self.amp = 1.0
         self.offset = 0.0
@@ -12,12 +16,13 @@ class Processor():
         self.downsample_factor = 1
         self.bit_depth = 16
 
-    def scale(self, amp, offset):
-
-        for sample in self.signal:
-            yield sample * amp + offset
-
     def normalise(self, inp):
+        """ Normalise a signal to the range +/- 1
+
+            @param inp seq : A sequence of samples
+
+            @returns seq : The processed samples
+        """
 
         a = list(inp)
         p = max(a)
@@ -28,6 +33,16 @@ class Processor():
             yield g * x
 
     def slew(self, inp, inv=False):
+        """ Apply slew or overhoot to a signal. Slew smooths steep transients in
+            the signal while overshoot results in a sharper transient with
+            ringing.
+
+            @param inp seq : A sequence of samples
+            @param inv bool : If True, overshoot will be applied. if False,
+                              slew will be applied. (default=False).
+
+            @returns seq : The processed samples
+        """
 
         a = self.slew_rate
 
@@ -47,6 +62,12 @@ class Processor():
                 yield c
 
     def downsample(self, inp):
+        """ Reduce the effective sample rate of a signal, resulting in aliasing.
+
+            @param inp seq : A sequence of samples
+
+            @returns seq : The processed samples
+        """
 
         if self.downsample_factor < 1:
             m = "Downsampling factor ({0}) cannot be < 1"
@@ -71,6 +92,12 @@ class Processor():
                     yield last
 
     def quantise(self, inp):
+        """ Reduce the bit depth of a signal.
+
+            @param inp seq : A sequence of samples
+
+            @returns seq : The processed samples
+        """
 
         m = 2 ** self.bit_depth - 1
 

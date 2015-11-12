@@ -3,7 +3,7 @@ Python modules to create and manage oscillator wavetables for u-he's Zebra2 soft
 
 # Examples
 
-These examples should how to:
+These examples show how to:
 
 - Use the sig module to generate oscillator shapes.
 - Use the zwave module to create an (up to) 16 slot wavetable for zebra out

@@ -6,11 +6,7 @@ import zosc
 import sig
 import dsp
 
-# CAUTION! RUNNING THIS CREATES FILES IN YOUR USER LIBRARY!
-# IF THERE ARE EXISTING FILES IN THE ZEBRA OSCILLATOR USER LIBRARY THAT HAPPEN
-# TO HAVE THE SAME NAMES AS THE ONES CREATED HERE, THEY WILL BE OVERWRITTEN!
-
-# these examples should how to:
+# these examples show how to:
 
 # - use the sig module to generate oscillator shapes.
 # - use the zwave module to create an (up to) 16 slot wavetable for zebra out
