@@ -1,4 +1,4 @@
-""" Process waveformas """
+""" Process waveforms """
 
 from numpy import floor
 from numpy import ceil
