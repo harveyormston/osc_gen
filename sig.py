@@ -1,6 +1,11 @@
 """ Tools for generating and interpolating between waeform cycles. """
 
-from scipy.interpolate import interp1d
+try:
+    from scipy.interpolate import interp1d
+    HAS_SCIPY = True
+except ImportError:
+    HAS_SCIPY = False
+
 import numpy as np
 
 
@@ -18,7 +23,7 @@ class SigGen():
         """ Generate the base waveform cycle, a sawtooth or ramp from -1 to 1
         """
 
-        rmax = self.num_points / 2
+        rmax = int(self.num_points / 2)
         rmin = -rmax
 
         for v in range(rmin, rmax):
@@ -66,20 +71,31 @@ class SigGen():
             yield self.__scale(x)
 
     def custom(self, data):
-        """ Generate a custom wave cycle. The provided data will be interpolated
-            to occupy the correct number of samples for a single cycle at our
-            reference frequency and then normalised and scaled as appropriate.
+        """ Generate a custom wave cycle. The provided data will be
+            interpolated, if possible, to occupy the correct number of samples
+            for a single cycle at our reference frequency and then normalised
+            and scaled as appropriate.
 
             @param data seq : A sequence of samples representing a single cycle
                               of a wave
         """
 
         y = list(data)
-        x = range(len(y))
-        f = interp1d(x, y)
-        xx = np.linspace(x[0], x[-1], self.num_points)
-        for x in normalise(f(xx)):
-            yield self.__scale(x)
+        n = len(y)
+        x = range(n)
+
+        if HAS_SCIPY:
+            f = interp1d(x, y)
+            xx = np.linspace(x[0], x[-1], self.num_points)
+            for x in normalise(f(xx)):
+                yield self.__scale(x)
+        else:  # no scipy
+            if len(y) != self.num_points:
+                m = "Got {0} samples, expected {1}"
+                raise ValueError(m.format(n, self.num_points))
+            else:
+                for x in normalise(y):
+                    yield self.__scale(x)
 
 
 def morph(s, n):
