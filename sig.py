@@ -1,10 +1,5 @@
 """ Tools for generating and interpolating between waeform cycles. """
 
-try:
-    from scipy.interpolate import interp1d
-    HAS_SCIPY = True
-except ImportError:
-    HAS_SCIPY = False
 
 import numpy as np
 
@@ -82,20 +77,10 @@ class SigGen():
 
         y = list(data)
         n = len(y)
-        x = range(n)
-
-        if HAS_SCIPY:
-            f = interp1d(x, y)
-            xx = np.linspace(x[0], x[-1], self.num_points)
-            for x in normalise(f(xx)):
-                yield self.__scale(x)
-        else:  # no scipy
-            if len(y) != self.num_points:
-                m = "Got {0} samples, expected {1}"
-                raise ValueError(m.format(n, self.num_points))
-            else:
-                for x in normalise(y):
-                    yield self.__scale(x)
+        x = np.linspace(0, n - 1, num=n)
+        xx = np.linspace(0, n - 1, num=self.num_points)
+        for s in normalise([np.interp(p, x, y) for p in xx]):
+            yield self.__scale(s)
 
 
 def morph(s, n):
