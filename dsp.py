@@ -1,110 +1,161 @@
 """ Process waveforms """
 
-from numpy import floor
-from numpy import ceil
+import math
+
+import numpy as np
 
 
-class Processor():
-    """ Processor """
+def normalise(inp):
+    """ Normalise a signal to the range +/- 1
 
-    def __init__(self):
-        """ Init """
+        @param inp seq : A sequence of samples
+    """
 
-        self.amp = 1.0
-        self.offset = 0.0
-        self.slew_rate = 0.0
-        self.downsample_factor = 1
-        self.bit_depth = 16
+    inp /= max(abs(inp))
+    
+    return inp
 
-    def normalise(self, inp):
-        """ Normalise a signal to the range +/- 1
 
-            @param inp seq : A sequence of samples
+def clip(inp, amount, bias=0):
+    """ Hard-clip a signal
 
-            @returns seq : The processed samples
-        """
+        @param inp seq : A sequence of samples
+        @param amount number : Amount of clipping
+        @param bias number : Pre-distortion DC bias
+    """
+    
+    gain = 1 + amount
 
-        a = list(inp)
-        p = max(a)
-        p = max(p, abs(min(a)))
-        g = 1. / p
+    inp += bias
+    inp *= gain
+    np.clip(inp, -1., 1., out=inp)
+    
+    return normalise(inp)
+    
 
-        for x in a:
-            yield g * x
+def tube(inp, amount, bias=0):
+    """ Tube saturate a signal
 
-    def slew(self, inp, inv=False):
-        """ Apply slew or overhoot to a signal. Slew smooths steep transients in
-            the signal while overshoot results in a sharper transient with
-            ringing.
+        @param inp seq : A sequence of samples
+        @param amount number : Amount of distortion
+        @param bias number : Pre-distortion DC bias
+    """
+    
+    gain = 1 + amount
+    inp += bias
+    inp *= gain
+    for i, s in enumerate(inp):
+        inp[i] = math.exp(-np.logaddexp(0, -s))
+    
+    inp *= 2
+    inp -= 1
+    
+    return normalise(inp)
 
-            @param inp seq : A sequence of samples
-            @param inv bool : If True, overshoot will be applied. if False,
-                              slew will be applied. (default=False).
 
-            @returns seq : The processed samples
-        """
+def fold(inp, amount, bias=0):
+    """ Perform wave folding
+    
+        @param inp seq : A sequence of samples
+        @param amount number : Amount of distortion
+        @param bias number : Pre-distortion DC bias
+    """
 
-        a = self.slew_rate
+    gain = 1 + amount
+    inp += bias
+    inp *= gain
+    for i, s in enumerate(inp):
+        if s > 1:
+            inp[i] = 2 - s
+        if s < -1:
+            inp[i] = -2 -s
 
-        # process 2 cycles and return the last, in order to allow for
-        # settling
-        il = list(inp)
-        l = len(il)
-        il.extend(il)
-        p = 0
-        for i, s in enumerate(il):
+    return normalise(inp)
+
+
+def shape(inp, amount, bias=0, power=3):
+    """ Perform polynomial waveshaping
+    
+        @param inp seq : A sequence of samples
+        @param amount number : Amount of shaping
+        @param bias number : Pre-distortion DC bias
+        @param power : Polynomial power
+    """
+    
+    shaped = np.power(inp, power) * amount
+    inp *= (1 - amount)
+    inp += shaped
+    
+    return normalise(inp)
+
+
+def slew(inp, rate, inv=False):
+    """ Apply slew or overhoot to a signal. Slew smooths steep transients in
+        the signal while overshoot results in a sharper transient with
+        ringing.
+        
+        @param rate float : Slew rate, between 0 and 1
+        @param inp seq : A sequence of samples
+        @param inv bool : If True, overshoot will be applied. if False,
+                          slew will be applied. (default=False).
+    """
+
+    a = rate
+    p = 0.
+    # process twice in order to allow for settling
+    for m in range(2):
+        for i, s in enumerate(inp):
             if inv:
-                c = p * (a - 1) + (s * a)
+                c = p * (a - 1.) + (s * a)
             else:
-                c = s * (1 - a) + (p * a)
+                c = s * (1. - a) + (p * a)
             p = c
-            if i >= l:
-                yield c
+            if m > 0:
+                inp[i] = c
 
-    def downsample(self, inp):
-        """ Reduce the effective sample rate of a signal, resulting in aliasing.
+    return normalise(inp)
+    
 
-            @param inp seq : A sequence of samples
+def downsample(inp, factor):
+    """ Reduce the effective sample rate of a signal, resulting in aliasing.
 
-            @returns seq : The processed samples
-        """
+        @param inp seq : A sequence of samples
+        @param factor int : Downsampling factor
+    """
 
-        if self.downsample_factor < 1:
-            m = "Downsampling factor ({0}) cannot be < 1"
-            raise ValueError(m.format(self.downsample_factor))
+    if factor < 1:
+        m = "Downsampling factor ({0}) cannot be < 1"
+        raise ValueError(m.format(self.downsample_factor))
 
-        if self.downsample_factor == 1:
-            for sample in inp:
-                yield sample
-        else:
-            # the aliasing is deliberate!
-            ns = 0
-            f = self.downsample_factor
+    if factor == 1:
+        return inp
+    else:
+        # the aliasing is deliberate!
+        ns = 0
+        f = factor
 
-            for sample in inp:
-                ns += 1
-                if ns is 1:
-                    last = sample
-                    yield sample
-                else:
-                    if ns >= f:
-                        ns -= f
-                    yield last
-
-    def quantise(self, inp):
-        """ Reduce the bit depth of a signal.
-
-            @param inp seq : A sequence of samples
-
-            @returns seq : The processed samples
-        """
-
-        m = 2 ** self.bit_depth - 1
-
-        for s in inp:
-            if s > 0:
-                yield ceil(s * m) / m
-            elif s < 0:
-                yield floor(s * m) / m
+        for i, s in enumerate(inp):
+            if i % f == 0:
+                last = s
             else:
-                yield floor(-1e-15 * m) / m
+                inp[i] = last
+                
+    return normalise(inp)
+
+
+def quantise(inp, depth):
+    """ Reduce the bit depth of a signal.
+
+        @param inp seq : A sequence of samples
+        @param depth number : New bit depth in bits
+    """
+
+    m = 2 ** depth - 1
+
+    for i, s in enumerate(inp):
+        if s > 0:
+            inp[i] = np.ceil(s * m) / m
+        elif s < 0:
+            inp[i] = np.floor(s * m) / m
+            
+    return normalise(inp)

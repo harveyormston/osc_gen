@@ -1,6 +1,8 @@
 import os
 import platform
+from itertools import product
 
+import visualise
 import zwave
 import zosc
 import sig
@@ -19,19 +21,21 @@ import dsp
 
 # _____________________________________________________________________________
 # first, let's set up a location to store the resulting oscillator files
-# on OSX, this is the standard u-he aread in Application Support, not sure
-# where it is on other platofrms.
+# on OSX, this is the standard u-he area in Application Support.
+# on other platform, a local directory is used.
+
+STORE_FILES = False
 
 if platform.system() == 'Darwin':
     home = os.path.expanduser('~')
     osc_path = 'Library/Application Support/u-he/Zebra2/Modules/Oscillator'
 else:
-    m = ("I'm not sure where your oscillator library is. "
-         "You should probably check.")
-    raise Warning(m)
+    d = 'oscillator_pack'
+    if not os.path.exists(d):
+        os.mkdir(d)
+    osc_path = d
+    
 
-# let's make a processor and set some of its properties
-p = dsp.Processor()
 # create a signal generator
 sg = sig.SigGen()
 # create a wave table to hold the waves
@@ -39,54 +43,61 @@ wt = zwave.WaveTable()
 # create a zebra oscillator to store the final wave table
 zo = zosc.Osc(wt)
 
-for bd in (16, 6, 3):
-    for ds in (1, 4, 8, 16):
-        for sr in (0.1, 0.5, 0.8):
-            for si in (False, True):
+bit_depths = (16, 6, 3)
+dowsample_factors = (1, 4, 8, 16)
+slew_rates = (0.1, 0.5, 0.8)
+slew_invert = (False, True)
 
-                p.bit_depth = bd
-                p.downsample_factor = ds
-                p.slew_rate = sr
-                sinv = si
+params = product(
+    bit_depths,
+    dowsample_factors,
+    slew_rates,
+    slew_invert)
 
-                fn = 'og_stsp_{0}{1}{2}{3}'
-                fn = fn.format(bd, ds, sr, si)
-                fn = fn.replace('.', '')
-                fn = fn.replace('False', 's')
-                fn = fn.replace('True', 'o')
-                fn += '.h2p'
+for p in params:
 
-                ws = []
-                raw = (
-                    sg.sin(),
-                    sg.tri(),
-                    sg.saw(),
-                    sg.pls(1./14),
-                    sg.pls(2./14),
-                    sg.pls(3./14),
-                    sg.pls(4./14),
-                    sg.pls(5./14),
-                    sg.pls(6./14),
-                    sg.pls(7./14),
-                    sg.pls(8./14),
-                    sg.pls(9./14),
-                    sg.pls(10./14),
-                    sg.pls(11./14),
-                    sg.pls(12./14),
-                    sg.pls(13./14),
-                )
+    bd = p[0]
+    ds = p[1]
+    sr = p[2]
+    si = p[3]
 
-                for w in raw:
-                    pw = p.normalise(
-                        p.slew(
-                            p.quantise(
-                                p.downsample(w)),
-                            inv=sinv))
+    fn = 'og_stsp_{0}{1}{2}{3}'
+    fn = fn.format(bd, ds, sr, si)
+    fn = fn.replace('.', '')
+    fn = fn.replace('False', 's')
+    fn = fn.replace('True', 'o')
+    fn += '.h2p'
 
-                    ws.append(pw)
+    ws = []
+    raw = (
+        sg.sin(),
+        sg.tri(),
+        sg.saw(),
+        sg.pls(1./14),
+        sg.pls(2./14),
+        sg.pls(3./14),
+        sg.pls(4./14),
+        sg.pls(5./14),
+        sg.pls(6./14),
+        sg.pls(7./14),
+        sg.pls(8./14),
+        sg.pls(9./14),
+        sg.pls(10./14),
+        sg.pls(11./14),
+        sg.pls(12./14),
+        sg.pls(13./14),
+    )
 
-                # set the wavetable and store it as an oscillator
-                wt.set_waves(zwave.Wave(s) for s in ws)
-                f = os.path.join(home, osc_path, fn)
-                zo.write_to_file(f)
-                print f
+    for w in raw:
+        dsp.downsample(w, ds)
+        dsp.quantise(w, bd)
+        dsp.slew(w, sr, si)
+        ws.append(w)
+
+    # set the wavetable and store it as an oscillator
+    wt.set_waves(zwave.Wave(s) for s in ws)
+    f = os.path.join(home, osc_path, fn)
+    if STORE_FILES:
+        zo.write_to_file(f)
+    else:
+        visualise.plot_wavetable(wt)

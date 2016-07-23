@@ -182,35 +182,27 @@ Set the wavetable and store it as an oscillator:
 
 The dsp module can be used to process waves in various ways.
 
-
-Let's make a processor and set some of its properties:
-
-        p = dsp.Processor()
-        p.bit_depth = 3
-        p.slew_rate = 0.8
-        p.downsample_factor = 16
-
 Let's try downsampling a sine:
 
-        ds = p.downsample(sg.sin())
+        ds = dsp.downsample(sg.sin(), 16)
 
 That downsampled sine from probably sounds pretty edgy.
 
 Let's try that again with some slew this time, to smooth it out a bit:
 
-        sw = p.slew(p.downsample(sg.sin()))
+        sw = dsp.slew(dsp.downsample(sg.sin(), 16), 0.8)
 
 Generate a triangle wave and quantise (bit crush) it:
 
-        qt = p.quantise(sg.tri())
+        qt = dsp.quantise(sg.tri(), 3)
 
 Applying inverse slew, or overshoot, to a square wave:
 
-        ss = p.slew(sg.sqr(), inv=True)
+        ss = dsp.slew(sg.sqr(), 0.8, inv=True)
 
 Overshoot might make the wave quieter, so let's normalise it:
 
-        ss = p.normalise(ss)
+        dsp.normalise(ss)
 
 Morph between the waves over 16 slots:
 

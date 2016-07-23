@@ -1,6 +1,8 @@
 import os
 import platform
 
+import numpy as np
+import visualise
 import zwave
 import zosc
 import sig
@@ -15,16 +17,19 @@ import dsp
 
 # _____________________________________________________________________________
 # first, let's set up a location to store the resulting oscillator files
-# on OSX, this is the standard u-he aread in Application Support, not sure
-# where it is on other platofrms.
+# on OSX, this is the standard u-he area in Application Support.
+# on other platfroms, a local directory is used.
+
+STORE_FILES = False
 
 if platform.system() == 'Darwin':
     home = os.path.expanduser('~')
     osc_path = 'Library/Application Support/u-he/Zebra2/Modules/Oscillator'
 else:
-    m = ("I'm not sure where your oscillator library is. "
-         "You should probably check.")
-    raise Warning(m)
+    d = 'oscillator_pack'
+    if not os.path.exists(d):
+        os.mkdir(d)
+    osc_path = d
 
 # _____________________________________________________________________________
 # example setup: initial setup of the objects we'll need in order to create and
@@ -51,9 +56,12 @@ wt.set_waves((m,))
 # resulting oscillator in zebra will contain the saw. the remaining slots will
 # be empty, because we haven't added anything to those yet.
 
-# write the resulting oscillator to a file
-f = os.path.join(home, osc_path, 'osc_gen_saw.h2p')
-zo.write_to_file(f)
+if STORE_FILES:
+    # write the resulting oscillator to a file
+    f = os.path.join(home, osc_path, 'osc_gen_saw.h2p')
+    zo.write_to_file(f)
+else:
+    visualise.plot_wavetable(wt)
 
 # you could fill all 16 slots with the same saw, by repeating it 16 times when
 # calling set_waves() on the wave table, if you wanted:
@@ -66,9 +74,12 @@ m = zwave.Wave(sg.saw())
 # repeat the saw 16 times in the wavetable
 wt.set_waves((m for _ in range(16)))
 
-# write the resulting oscillator to a file
-f = os.path.join(home, osc_path, 'osc_gen_saw16.h2p')
-zo.write_to_file(f)
+if STORE_FILES:
+    # write the resulting oscillator to a file
+    f = os.path.join(home, osc_path, 'osc_gen_saw16.h2p')
+    zo.write_to_file(f)
+else:
+    visualise.plot_wavetable(wt)
 
 # _____________________________________________________________________________
 # example 2: morphing between two waveforms
@@ -81,8 +92,12 @@ ws = (zwave.Wave(s) for s in sig.morph((sg.sin(), sg.tri()), 16))
 
 # set the wavetable and store it as an oscillator
 wt.set_waves(ws)
-f = os.path.join(home, osc_path, 'osc_gen_sin_tri.h2p')
-zo.write_to_file(f)
+
+if STORE_FILES:
+    f = os.path.join(home, osc_path, 'osc_gen_sin_tri.h2p')
+    zo.write_to_file(f)
+else:
+    visualise.plot_wavetable(wt)
 
 # of course, we don't have to use all 16 slots. we could use only the first 5,
 # for example.
@@ -95,8 +110,12 @@ ws = (zwave.Wave(s) for s in sig.morph((sg.sin(), sg.tri()), 5))
 
 # set the wavetable and store it as an oscillator
 wt.set_waves(ws)
-f = os.path.join(home, osc_path, 'osc_gen_sin_tri5.h2p')
-zo.write_to_file(f)
+
+if STORE_FILES:
+    f = os.path.join(home, osc_path, 'osc_gen_sin_tri5.h2p')
+    zo.write_to_file(f)
+else:
+    visualise.plot_wavetable(wt)
 
 # _____________________________________________________________________________
 # example 3: morphing between many waveforms
@@ -115,8 +134,12 @@ ws = (zwave.Wave(s) for s in
 
 # set the wavetable and store it as an oscillator
 wt.set_waves(ws)
-f = os.path.join(home, osc_path, 'osc_gen_sin_tri_saw_sqr.h2p')
-zo.write_to_file(f)
+
+if STORE_FILES:
+    f = os.path.join(home, osc_path, 'osc_gen_sin_tri_saw_sqr.h2p')
+    zo.write_to_file(f)
+else:
+    visualise.plot_wavetable(wt)
 
 # _____________________________________________________________________________
 # example 4: generting your own waves
@@ -125,8 +148,7 @@ zo.write_to_file(f)
 # use any data you've generated or, say, read in from a wav file.
 
 # generate some random data
-from random import uniform
-random_wave = (uniform(-1, 1) for _ in range(128))
+random_wave = np.random.uniform(low=-1, high=1, size=128)
 
 # the custom signal generator function automatically normaises and scales any
 # data you throw at it to the right ranges, which is useful.
@@ -137,8 +159,12 @@ wt.clear()
 
 # set the wavetable and store it as an oscillator
 wt.set_waves((r,))
-f = os.path.join(home, osc_path, 'osc_gen_random.h2p')
-zo.write_to_file(f)
+
+if STORE_FILES:
+    f = os.path.join(home, osc_path, 'osc_gen_random.h2p')
+    zo.write_to_file(f)
+else:
+    visualise.plot_wavetable(wt)
 
 # _____________________________________________________________________________
 # example 5: pulse-width modulation
@@ -156,39 +182,41 @@ ws = (zwave.Wave(sg.pls(p)) for p in pws)
 
 # set the wavetable and store it as an oscillator
 wt.set_waves(ws)
-f = os.path.join(home, osc_path, 'osc_gen_pwm.h2p')
-zo.write_to_file(f)
+
+if STORE_FILES:
+    f = os.path.join(home, osc_path, 'osc_gen_pwm.h2p')
+    zo.write_to_file(f)
+else:
+    visualise.plot_wavetable(wt)
 
 # _____________________________________________________________________________
 # example 6: processing wave forms
 # the dsp module can be used to process waves in various ways
 
-# let's make a processor and set some of its properties
-p = dsp.Processor()
-p.bit_depth = 3
-p.slew_rate = 0.8
-p.downsample_factor = 16
-
 # let's try downsampling a sine
-ds = p.downsample(sg.sin())
+ds = dsp.downsample(sg.sin(), 16)
 
 # that downsampled sine from probably sounds pretty edgy
 # let's try that again with some slew this time, to smooth it out a bit
-sw = p.slew(p.downsample(sg.sin()))
+sw = dsp.slew(dsp.downsample(sg.sin(), 16), 0.8)
 
 # generate a triangle wave and quantise (bit crush) it
-qt = p.quantise(sg.tri())
+qt = dsp.quantise(sg.tri(), 3)
 
 # applying inverse slew, or overshoot, to a square wave
-ss = p.slew(sg.sqr(), inv=True)
+ss = dsp.slew(sg.sqr(), 0.8, inv=True)
 
 # overshoot might make the wave quieter, so let's normalise it
-ss = p.normalise(ss)
+dsp.normalise(ss)
 
 # morph between the waves over 16 slots
 ws = (zwave.Wave(s) for s in sig.morph((ds, sw, qt, ss), 16))
 
 # set the wavetable and store it as an oscillator
 wt.set_waves(ws)
-f = os.path.join(home, osc_path, 'osc_gen_dsp.h2p')
-zo.write_to_file(f)
+
+if STORE_FILES:
+    f = os.path.join(home, osc_path, 'osc_gen_dsp.h2p')
+    zo.write_to_file(f)
+else:
+    visualise.plot_wavetable(wt)

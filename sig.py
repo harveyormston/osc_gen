@@ -1,5 +1,6 @@
 """ Tools for generating and interpolating between waeform cycles. """
 
+import dsp
 
 import numpy as np
 
@@ -17,53 +18,43 @@ class SigGen():
     def __base(self):
         """ Generate the base waveform cycle, a sawtooth or ramp from -1 to 1
         """
+        
+        return np.linspace(-1., 1., num=self.num_points)
 
-        rmax = int(self.num_points / 2)
-        rmin = -rmax
-
-        for v in range(rmin, rmax):
-            x = v / float(rmax)
-            yield x
-
-    def __scale(self, value):
-        """ Scale a value so that it has the required amplitude and offset
-            applied.
-        """
-
-        return value * self.amp + self.offset
 
     def saw(self):
         """ Generate a sawtooth wave cycle """
 
-        for s in self.__base():
-            yield self.__scale(s)
+        return self.__base()
 
     def tri(self):
         """ Generate a triangle wave cycle """
 
-        for s in self.__base():
-            yield self.__scale(s * 2 + 1 if s < 0 else s * -2 + 1)
+        return abs(self.__base()) * -2 + 1
 
     def pls(self, pw):
         """ Generate a pulse wave cycle
 
-            @param pw float : Pulse width or duty cycle, between 0 and 1
+            @param pw float : Pulse width or duty cycle, between -1 and 1
         """
 
-        t = pw * 2 - 1
-        for s in self.__base():
-            yield self.__scale(-1.0 if s < t else 1.0)
+        def threshold(x, t):
+            if x < t:
+                return -1.
+            else:
+                return 1.
+
+        return np.array([threshold(x, pw) for x in self.__base()])
 
     def sqr(self):
         """ Generate a square wave cycle """
 
-        return self.pls(0.5)
+        return self.pls(0)
 
     def sin(self):
         """ Generate a sine wave cycle """
 
-        for x in (np.sin(np.pi * (a + 0.5)) for a in self.__base()):
-            yield self.__scale(x)
+        return np.sin(np.pi * (self.__base() + 0.5))
 
     def custom(self, data):
         """ Generate a custom wave cycle. The provided data will be
@@ -75,12 +66,13 @@ class SigGen():
                               of a wave
         """
 
-        y = list(data)
+        y = data
         n = len(y)
-        x = np.linspace(0, n - 1, num=n)
-        xx = np.linspace(0, n - 1, num=self.num_points)
-        for s in normalise([np.interp(p, x, y) for p in xx]):
-            yield self.__scale(s)
+        x = np.linspace(0, n, num=n)
+        xx = np.linspace(0, n, num=self.num_points)
+        yy = np.interp(xx, x, y)
+        dsp.normalise(yy)
+        return yy
 
 
 def morph(s, n):
@@ -152,7 +144,7 @@ def __morph_many(s, r):
             else:
                 o = 1
 
-            n = list(list(x) for x in __morph_two(a, b, r[i]))[o:]
+            n = [x for x in __morph_two(a, b, r[i])][o:]
             morphed.extend(n)
             i += 1
 
@@ -177,17 +169,3 @@ def __morph_two(a, b, n):
     b = list(b)
 
     return ((x * (1 - m) + y * m for x, y in zip(a, b)) for m in alphas)
-
-
-def normalise(s):
-    """ Normalise a wave cycle to within the range +/- 1
-
-        @param s sequence : A wave cycle
-    """
-
-    a = list(s)
-    p = max(a)
-    p = max(p, abs(min(a)))
-    g = 1. / p
-    for x in s:
-        yield g * x
