@@ -63,82 +63,39 @@ class Wave():
             raise ValueError(m.format(i + 1))
 
 
-class WaveTableSlot():
-    """ One wave cycle slot within the wavetable """
-
-    min_index = 1
-    max_index = 16
-
-    def __init__(self, index, wave):
-        """ Init
-
-            @param index int : The slot number
-            @param wave Wave() : The wave cycle
-        """
-
-        if not self.min_index <= index <= self.max_index:
-            m = "Wavetable index {0} outside valid range {1} to {2}"
-            raise ValueError(m.format(index, self.min_index, self.max_index))
-
-        self.index = index
-        self.wave = wave
-
-    def set_wave(self, wave):
-        """ Set the wave in this slot
-
-            @param wave Wave() : The wave
-        """
-
-        self.wave = wave
-
-    def set_index(self, index):
-        """ Set the index of this slot
-
-            @param index int : The index
-        """
-
-        self.index = index
-
-
 class WaveTable():
-    """ A 16-slot wavetable """
+    """ An n-slot wavetable """
 
-    max_slots = 16
 
-    def __init__(self, waves=None):
+    def __init__(self, waves=None, num_waves=None):
         """ Init
 
             @param waves sequence : A sequence of Wave() objects which make up
                                     the wavetable
         """
 
-        self.slots = []
-        self.zero_empty_slots()
+        self.waves = []
+        self.num_waves = 0
+        self.set_waves(waves, num_waves)
 
     def clear(self):
         """ Clear the wavetable so that all slots contain zero """
 
-        self.slots = []
-        self.zero_empty_slots()
+        self.waves = []
 
-    def get_sorted_slots(self):
-        """ Get the slots which are not empty in order of index """
-
-        for index in range(1, self.max_slots + 1):
-            yield self.get_item_in_slot(index)
-
-    def get_item_in_slot(self, slot):
+    def get_wave_at_index(self, index):
         """ Get the wave at a specific slot index
 
             @param index int : The slot index to get the wave from
         """
+        
+        if index >= len(self.waves):
+            return Wave()
+        else:
+            return self.waves[index]
 
-        for w in self.slots:
-            if w.index is slot:
-                return w
-
-    def set_waves(self, waves):
-        """ Set the wavetable itmes from a seuqnce of Waves. If not enough waves
+    def set_waves(self, waves=None, num_waves=None):
+        """ Set the wavetable items from a seuqnce of Waves. If not enough waves
             are provided to fill the table, the remaining older items will
             remain.
 
@@ -146,28 +103,22 @@ class WaveTable():
                                     the wavetable
         """
 
-        for i, w in enumerate(waves):
-            self.set_wave_in_slot(i + 1, w)
-
-    def set_wave_in_slot(self, slot, wave):
-        """ Set the wave cycle at a specific slot index
-
-            @param slot int : The slot index
-            @param wave Wave() : The wave cycle
-        """
-
-        s = self.get_item_in_slot(slot)
-
-        if s is None:
-            self.slots.append(WaveTableSlot(slot, wave))
+        if waves is None:
+            self.waves = []
         else:
-            s.set_wave(wave)
+            self.waves = list(waves)
+            if len(self.waves) <= self.num_waves:
+                return
 
-    def zero_empty_slots(self):
-        """ Set the wave cycle to an empty wave cycle (all zeros)
-            in all empty slots.
-        """
+        if num_waves is None:
+            if waves is None:
+                self.num_waves = 0
+            else:
+                self.num_waves = len(self.waves)
+        else:
+            self.num_waves = num_waves
+        
+    def get_waves(self):
 
-        for i, s in enumerate(self.get_sorted_slots()):
-            if s is None:
-                self.set_wave_in_slot(i + 1, Wave())
+        for i in range(self.num_waves):
+            yield self.get_wave_at_index(i)

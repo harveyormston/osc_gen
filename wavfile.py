@@ -69,4 +69,14 @@ def write(data, filename, samplerate=44100):
         w.setnchannels(1)
         w.setsampwidth(2)
         w.writeframes(_float_to_ibytes(data))
-        w.close()
+
+
+def write_wavetable(wavetable, filename, samplerate=44100):
+    
+    with wave.open(filename, 'w') as w:
+        w.setframerate(samplerate)
+        w.setnchannels(1)
+        w.setsampwidth(2)
+        for wv in wavetable.get_waves():
+            w.writeframes(_float_to_ibytes(wv.values))
+    

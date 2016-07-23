@@ -135,13 +135,10 @@ def __morph_many(s, r):
         @param r sequence : The size of the gap between each pair of cycles
     """
 
-    # TODO: return a generator instead of an iterator
     morphed = []
     a = None
-    b = None
     i = 0
-    for ss in s:
-        b = list(ss)
+    for b in s:
         if a is not None:
             if i is 0:
                 o = 0
@@ -165,11 +162,6 @@ def __morph_two(a, b, n):
         @param n int : The reuqired number of wave cycles in the new seuqence
     """
 
-    alphas = (s * 1. / (n - 1) for s in range(n))
-
-    # must transform to iterators as a generator would be exhausted
-    # on the first iteration of the zip operation
-    a = list(a)
-    b = list(b)
-
-    return ((x * (1 - m) + y * m for x, y in zip(a, b)) for m in alphas)
+    alphas = (s / (n - 1.0) for s in range(n))
+    
+    return [a * (1 - m) + b * m for m in alphas]

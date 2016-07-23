@@ -8,9 +8,7 @@ def plot_wave(wave):
     
 def plot_wavetable(wavetable):
     
-    slots = wavetable.slots
-    signals = [slot.wave.values for slot in slots]
-    for s in signals:
+    for s in [wave.values for wave in wavetable.waves]:
         plt.plot(s)
     plt.show()
     plt.gcf().clear()

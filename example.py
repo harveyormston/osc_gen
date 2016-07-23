@@ -39,7 +39,7 @@ else:
 sg = sig.SigGen()
 
 # create a wave table to store the waves
-wt = zwave.WaveTable()
+wt = zwave.WaveTable(num_waves=16)
 
 # create a zebra oscillator to store the final wave table
 zo = zosc.Osc(wt)
