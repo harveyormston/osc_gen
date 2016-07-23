@@ -8,18 +8,22 @@ import numpy as np
 class SigGen():
     """ Signal Generator """
 
-    def __init__(self):
+    def __init__(self, harmonic=0):
         """ Init """
 
         self.num_points = 128
         self.amp = 1.0
         self.offset = 0.0
+        self.harmonic = harmonic
 
     def __base(self):
         """ Generate the base waveform cycle, a sawtooth or ramp from -1 to 1
         """
         
-        return np.linspace(-1., 1., num=self.num_points)
+        d = 2 ** self.harmonic
+        n = self.num_points / d
+        cycle = np.linspace(-1., 1., num=n)
+        return np.tile(cycle, d)
 
 
     def saw(self):

@@ -1,23 +1,26 @@
 """ Zebra oscillator waves """
 
+import numpy as np
 
 class Wave():
     """ Single-cycle wave """
 
     smp_max = (2 ** 15 - 1.) / (2 ** 15)
     smp_min = -smp_max
-    wave_len = 128
 
-    def __init__(self, data=None):
+    def __init__(self, data=None, length=128):
         """ Init
 
             @param data sequence : a single cycle's worth of
                                    samples between +/- 1
         """
 
-        self.values = [0. for _ in range(self.wave_len)]
-
-        if data is not None:
+        if data is None:
+            self.values = np.zeros(length)
+            self.wave_len = length
+        else:
+            self.wave_len = len(data)
+            self.values = np.zeros(self.wave_len)
             self.set_wave(data)
 
     def set_sample(self, index, value, sat=True):
