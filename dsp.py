@@ -64,11 +64,12 @@ def fold(inp, amount, bias=0):
     gain = 1 + amount
     inp += bias
     inp *= gain
-    for i, s in enumerate(inp):
-        if s > 1:
-            inp[i] = 2 - s
-        if s < -1:
-            inp[i] = -2 -s
+    while (max(abs(inp))) > 1:
+        for i, s in enumerate(inp):
+            if s > 1:
+                inp[i] = 2 - s
+            if s < -1:
+                inp[i] = -2 -s
 
     return normalise(inp)
 
