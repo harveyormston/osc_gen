@@ -19,10 +19,9 @@ class Osc():
         """
 
         table_size = None
-
-        for s in self.wavetable.get_sorted_slots():
+        for s in [wave.values for wave in self.wavetable.waves]:
             if s is not None:
-                table_size = s.wave.wave_len
+                table_size = len(s)
                 break
 
         if table_size is None:
@@ -41,16 +40,16 @@ class Osc():
             f.write("];\n")
             f.write("\n")
 
-            for s in self.wavetable.get_sorted_slots():
+            for i, s in enumerate([wave.values for wave in self.wavetable.waves]):
 
                 if s is None:
                     continue
 
                 f.write("//table ")
-                f.write(str(s.index))
+                f.write(str(i))
                 f.write("\n")
 
-                for index, value in enumerate(s.wave.values):
+                for index, value in enumerate(s):
                     f.write("Wave[")
                     f.write(str(index))
                     f.write("] = ")
@@ -58,7 +57,7 @@ class Osc():
                     f.write(";\n")
 
                 f.write("Selected.WaveTable.set(")
-                f.write(str(s.index))
+                f.write(str(i))
                 f.write(", Wave);\n")
                 f.write("\n")
 

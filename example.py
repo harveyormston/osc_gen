@@ -20,16 +20,17 @@ import dsp
 # on OSX, this is the standard u-he area in Application Support.
 # on other platfroms, a local directory is used.
 
-STORE_FILES = False
+STORE_FILES = True
+STORE_IN_ZEBRA = False
 
-if platform.system() == 'Darwin':
+if platform.system() == 'Darwin' and STORE_IN_ZEBRA:
     home = os.path.expanduser('~')
     osc_path = 'Library/Application Support/u-he/Zebra2/Modules/Oscillator'
 else:
-    d = 'oscillator_pack'
-    if not os.path.exists(d):
-        os.mkdir(d)
-    osc_path = d
+    home = '.'
+    osc_path = 'oscillator_pack'
+    if not os.path.exists(osc_path):
+        os.mkdir(osc_path)
 
 # _____________________________________________________________________________
 # example setup: initial setup of the objects we'll need in order to create and
