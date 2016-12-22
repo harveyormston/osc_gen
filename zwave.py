@@ -2,6 +2,7 @@
 
 import numpy as np
 
+
 class Wave():
     """ Single-cycle wave """
 
@@ -88,7 +89,7 @@ class WaveTable():
 
             @param index int : The slot index to get the wave from
         """
-        
+
         if index >= len(self.waves):
             return Wave()
         else:
@@ -117,7 +118,7 @@ class WaveTable():
                 self.num_waves = len(self.waves)
         else:
             self.num_waves = num_waves
-        
+
     def get_waves(self):
 
         for i in range(self.num_waves):

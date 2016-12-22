@@ -51,7 +51,7 @@ Write the resulting oscillator to a file:
         zo.write_to_file('osc_gen_saw.h2p')
 
 You could fill all 16 slots with the same saw, by repeating it 16 times when
-calling set_waves() on the wave table, if you wanted. However, we do need to
+calling `set_waves()` on the wave table, if you wanted. However, we do need to
 generate the saw again. sig tends to return Python generators
 where possible, which means they can become empty once they've been used
 once, unless you store them as a list yourself.
@@ -82,7 +82,7 @@ Set the wavetable and store it as an oscillator:
         wt.set_waves(ws)
         zo.write_to_file('osc_gen_sin_tri.h2p')
 
-Of course, we don't have to use all 16 slots. we could use only the first 5,
+Of course, we don't have to use all 16 slots. We could use only the first 5,
 for example.
 
 
@@ -112,7 +112,7 @@ can't morph 5 waves into 3 slots.
 
 
 If you want to morph to a smaller number of slots, you'd need to use
-morph to compress your 5 waves into 3 'in-between' waves first, and the
+morph to compress your 5 waves into 3 'in-between' waves first, and
 the decision over which waves to keep and which to compress isn't a
 decision morph should make for you.
 
@@ -132,8 +132,8 @@ Set the wavetable and store it as an oscillator:
 
 You can create a custom signal yourself to use as an oscillator.
 In this example, one slot is filled with random data, but you could
-use any data you've generated or, say, read in from a wav file using the wavfile
-module.
+use any data you've generated or, say, read in from a wav file using the
+wavfile module.
 
 Generate some random data:
 

@@ -34,7 +34,7 @@ else:
     if not os.path.exists(d):
         os.mkdir(d)
     osc_path = d
-    
+
 
 # create a signal generator
 sg = sig.SigGen()

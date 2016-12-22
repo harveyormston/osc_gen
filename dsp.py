@@ -12,7 +12,7 @@ def normalise(inp):
     """
 
     inp /= max(abs(inp))
-    
+
     return inp
 
 
@@ -23,15 +23,15 @@ def clip(inp, amount, bias=0):
         @param amount number : Amount of clipping
         @param bias number : Pre-distortion DC bias
     """
-    
+
     gain = 1 + amount
 
     inp += bias
     inp *= gain
     np.clip(inp, -1., 1., out=inp)
-    
+
     return normalise(inp)
-    
+
 
 def tube(inp, amount, bias=0):
     """ Tube saturate a signal
@@ -40,22 +40,22 @@ def tube(inp, amount, bias=0):
         @param amount number : Amount of distortion
         @param bias number : Pre-distortion DC bias
     """
-    
+
     gain = 1 + amount
     inp += bias
     inp *= gain
     for i, s in enumerate(inp):
         inp[i] = math.exp(-np.logaddexp(0, -s))
-    
+
     inp *= 2
     inp -= 1
-    
+
     return normalise(inp)
 
 
 def fold(inp, amount, bias=0):
     """ Perform wave folding
-    
+
         @param inp seq : A sequence of samples
         @param amount number : Amount of distortion
         @param bias number : Pre-distortion DC bias
@@ -69,24 +69,24 @@ def fold(inp, amount, bias=0):
             if s > 1:
                 inp[i] = 2 - s
             if s < -1:
-                inp[i] = -2 -s
+                inp[i] = -2 - s
 
     return normalise(inp)
 
 
 def shape(inp, amount, bias=0, power=3):
     """ Perform polynomial waveshaping
-    
+
         @param inp seq : A sequence of samples
         @param amount number : Amount of shaping
         @param bias number : Pre-distortion DC bias
         @param power : Polynomial power
     """
-    
+
     shaped = np.power(inp, power) * amount
     inp *= (1 - amount)
     inp += shaped
-    
+
     return normalise(inp)
 
 
@@ -94,7 +94,7 @@ def slew(inp, rate, inv=False):
     """ Apply slew or overhoot to a signal. Slew smooths steep transients in
         the signal while overshoot results in a sharper transient with
         ringing.
-        
+
         @param rate float : Slew rate, between 0 and 1
         @param inp seq : A sequence of samples
         @param inv bool : If True, overshoot will be applied. if False,
@@ -115,7 +115,7 @@ def slew(inp, rate, inv=False):
                 inp[i] = c
 
     return normalise(inp)
-    
+
 
 def downsample(inp, factor):
     """ Reduce the effective sample rate of a signal, resulting in aliasing.
@@ -140,7 +140,7 @@ def downsample(inp, factor):
                 last = s
             else:
                 inp[i] = last
-                
+
     return normalise(inp)
 
 
@@ -158,5 +158,5 @@ def quantise(inp, depth):
             inp[i] = np.ceil(s * m) / m
         elif s < 0:
             inp[i] = np.floor(s * m) / m
-            
+
     return normalise(inp)

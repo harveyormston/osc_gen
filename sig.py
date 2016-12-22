@@ -19,7 +19,7 @@ class SigGen():
     def __base(self):
         """ Generate the base waveform cycle, a sawtooth or ramp from -1 to 1
         """
-        
+
         d = 2 ** self.harmonic
         n = self.num_points / d
         cycle = np.linspace(-1., 1., num=n)
@@ -163,5 +163,5 @@ def __morph_two(a, b, n):
     """
 
     alphas = (s / (n - 1.0) for s in range(n))
-    
+
     return [a * (1 - m) + b * m for m in alphas]

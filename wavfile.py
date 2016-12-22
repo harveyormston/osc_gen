@@ -22,7 +22,7 @@ def _float_to_ibytes(floats):
 
 
 def _ibytes_to_float(bytes):
-    
+
     n = len(bytes)
     n = int(n / 4)
     a = struct.unpack('<{0}i'.format(n), bytes)
@@ -32,7 +32,7 @@ def _ibytes_to_float(bytes):
 
 
 def _read_using_wave(filename):
-    
+
     w = wave.open(filename, 'r')
     if w.getnchannels() != 1:
         raise ValueError("only mono supported")
@@ -52,7 +52,7 @@ def read(filename):
             data = np.swapaxes(data, 0, 1)[0]
     else:
         data = _read_using_wave(filename)
-        
+
     # center on 0
     data = data.astype(float)
     data -= np.mean(data)
@@ -63,7 +63,7 @@ def read(filename):
 
 def write(data, filename, samplerate=44100):
     """ Write wav file """
-    
+
     with wave.open(filename, 'w') as w:
         w.setframerate(samplerate)
         w.setnchannels(1)
@@ -72,11 +72,10 @@ def write(data, filename, samplerate=44100):
 
 
 def write_wavetable(wavetable, filename, samplerate=44100):
-    
+
     with wave.open(filename, 'w') as w:
         w.setframerate(samplerate)
         w.setnchannels(1)
         w.setsampwidth(2)
         for wv in wavetable.get_waves():
             w.writeframes(_float_to_ibytes(wv.values))
-    
