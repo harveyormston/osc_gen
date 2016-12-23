@@ -7,7 +7,7 @@ These examples show how to:
 
 - Use the sig module to generate oscillator shapes.
 - Use the zwave module to create an (up to) 16 slot wavetable.
-- Use the zosc module to store wavetables as a zebra oscillator file.
+- Use the zosc module to store a wavetable as a zebra oscillator file.
 
 
 ## Example Setup
