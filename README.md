@@ -1,14 +1,13 @@
 # osc_gen
-Python modules to create and manage oscillator wavetables for u-he's Zebra2 soft synth
+Python modules to create and manage oscillator wavetables.
 
 # Examples
 
 These examples show how to:
 
 - Use the sig module to generate oscillator shapes.
-- Use the zwave module to create an (up to) 16 slot wavetable for zebra out
-of oscillator waveforms.
-- Use the zosc module to store wavetables as a zebra oscillator file
+- Use the zwave module to create an (up to) 16 slot wavetable.
+- Use the zosc module to store wavetables as a zebra oscillator file.
 
 
 ## Example Setup
