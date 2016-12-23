@@ -30,6 +30,7 @@ if platform.system() == 'Darwin':
     home = os.path.expanduser('~')
     osc_path = 'Library/Application Support/u-he/Zebra2/Modules/Oscillator'
 else:
+    home = '.'
     d = 'oscillator_pack'
     if not os.path.exists(d):
         os.mkdir(d)
