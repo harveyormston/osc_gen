@@ -153,7 +153,7 @@ random_wave = np.random.uniform(low=-1, high=1, size=128)
 
 # the custom signal generator function automatically normaises and scales any
 # data you throw at it to the right ranges, which is useful.
-r = zwave.Wave(sg.custom(random_wave))
+r = zwave.Wave(sg.arb(random_wave))
 
 # clear the wavetable, so that the slots above 1 don't contain any older data.
 wt.clear()

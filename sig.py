@@ -25,7 +25,6 @@ class SigGen():
         cycle = np.linspace(-1., 1., num=n)
         return np.tile(cycle, d)
 
-
     def saw(self):
         """ Generate a sawtooth wave cycle """
 
@@ -60,14 +59,14 @@ class SigGen():
 
         return np.sin(np.pi * (self.__base() + 0.5))
 
-    def custom(self, data):
-        """ Generate a custom wave cycle. The provided data will be
-            interpolated, if possible, to occupy the correct number of samples
-            for a single cycle at our reference frequency and then normalised
-            and scaled as appropriate.
+    def arb(self, data):
+        """ Generate an arbitrary wave cycle. The provided data will be
+        interpolated, if possible, to occupy the correct number of samples for
+        a single cycle at our reference frequency and then normalised and
+        scaled as appropriate.
 
-            @param data seq : A sequence of samples representing a single cycle
-                              of a wave
+        @param data seq : A sequence of samples representing a single cycle
+            of a wave
         """
 
         y = data
