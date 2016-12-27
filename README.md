@@ -12,7 +12,8 @@ These examples show how to:
 
 ## Example Setup
 
-Initial setup of the objects we'll need in order to create and store oscillators
+Initial setup of the modules we'll need in order to create and store
+oscillators
 
         import zwave
         import zosc
