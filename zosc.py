@@ -1,64 +1,54 @@
 """ Zebra2 Oscillator wavetable """
 
 
-class Osc():
-    """ Zebra2 Oscillator wavetable """
+def write_wavetable(wavetable, filename):
+    """ Write wavetable to an h2p oscillator file
 
-    def __init__(self, wavetable):
-        """ Init
+        @param wavetable zwave.WaveTable : Wavetable
+        @param filename str : File name to write to
+    """
 
-            @param wavetable zwvae.WaveTable() : wavetable
-        """
+    table_size = None
+    for wave in wavetable.waves:
+        if wave is not None:
+            table_size = len(wave)
+            break
 
-        self.wavetable = wavetable
+    if table_size is None:
+        return
 
-    def write_to_file(self, filename):
-        """ Write wavetable to an h2p oscillator file
+    with open(filename, 'w') as osc_file:
 
-            @param filename str : File name to write to
-        """
+        osc_file.write("#defaults=no\n")
+        osc_file.write("#cm=OSC\n")
+        osc_file.write("Wave=2\n")
+        osc_file.write("<?\n")
+        osc_file.write("\n")
 
-        table_size = None
-        for s in [wave.values for wave in self.wavetable.waves]:
-            if s is not None:
-                table_size = len(s)
-                break
+        osc_file.write("float Wave[")
+        osc_file.write(str(table_size))
+        osc_file.write("];\n")
+        osc_file.write("\n")
 
-        if table_size is None:
-            return
+        for i, wave in enumerate(wavetable.waves):
 
-        with open(filename, 'w') as f:
+            if wave is None:
+                continue
 
-            f.write("#defaults=no\n")
-            f.write("#cm=OSC\n")
-            f.write("Wave=2\n")
-            f.write("<?\n")
-            f.write("\n")
+            osc_file.write("//table ")
+            osc_file.write(str(i))
+            osc_file.write("\n")
 
-            f.write("float Wave[")
-            f.write(str(table_size))
-            f.write("];\n")
-            f.write("\n")
+            for index, value in enumerate(wave):
+                osc_file.write("Wave[")
+                osc_file.write(str(index))
+                osc_file.write("] = ")
+                osc_file.write('{0:.10f}'.format(value))
+                osc_file.write(";\n")
 
-            for i, s in enumerate([wave.values for wave in self.wavetable.waves]):
+            osc_file.write("Selected.WaveTable.set(")
+            osc_file.write(str(i))
+            osc_file.write(", Wave);\n")
+            osc_file.write("\n")
 
-                if s is None:
-                    continue
-
-                f.write("//table ")
-                f.write(str(i))
-                f.write("\n")
-
-                for index, value in enumerate(s):
-                    f.write("Wave[")
-                    f.write(str(index))
-                    f.write("] = ")
-                    f.write('{0:.10f}'.format(value))
-                    f.write(";\n")
-
-                f.write("Selected.WaveTable.set(")
-                f.write(str(i))
-                f.write(", Wave);\n")
-                f.write("\n")
-
-            f.write("?>")
+        osc_file.write("?>")

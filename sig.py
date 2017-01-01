@@ -5,7 +5,7 @@ import dsp
 import numpy as np
 
 
-class SigGen():
+class SigGen(object):
     """ Signal Generator """
 
     def __init__(self, harmonic=0):
@@ -20,10 +20,10 @@ class SigGen():
         """ Generate the base waveform cycle, a sawtooth or ramp from -1 to 1
         """
 
-        d = 2 ** self.harmonic
-        n = self.num_points / d
-        cycle = np.linspace(-1., 1., num=n)
-        return np.tile(cycle, d)
+        repeats = 2 ** self.harmonic
+        num = self.num_points / repeats
+        cycle = np.linspace(-1., 1., num=num)
+        return np.tile(cycle, repeats)
 
     def saw(self):
         """ Generate a sawtooth wave cycle """
@@ -35,19 +35,20 @@ class SigGen():
 
         return abs(self.__base()) * -2 + 1
 
-    def pls(self, pw):
+    def pls(self, width):
         """ Generate a pulse wave cycle
 
             @param pw float : Pulse width or duty cycle, between -1 and 1
         """
 
-        def threshold(x, t):
-            if x < t:
+        def threshold(val, thresh):
+            """ Test whether val is above a threshold """
+            if val < thresh:
                 return -1.
             else:
                 return 1.
 
-        return np.array([threshold(x, pw) for x in self.__base()])
+        return np.array([threshold(x, width) for x in self.__base()])
 
     def sqr(self):
         """ Generate a square wave cycle """
@@ -69,91 +70,93 @@ class SigGen():
             of a wave
         """
 
-        y = data
-        n = len(y)
-        x = np.linspace(0, n, num=n)
-        xx = np.linspace(0, n, num=self.num_points)
-        yy = np.interp(xx, x, y)
-        dsp.normalise(yy)
-        return yy
+        interp_y = data
+        num = len(interp_y)
+        interp_x = np.linspace(0, num, num=num)
+        interp_xx = np.linspace(0, num, num=self.num_points)
+        interp_yy = np.interp(interp_xx, interp_x, interp_y)
+        dsp.normalise(interp_yy)
+        return interp_yy
 
 
-def morph(s, n):
+def morph(waves, new_num):
     """ Take a number of wave cycles and generate a higher number of wave cycles
         where the original waves are linearly interpolated from one to the next
         to fill in the gaps.
 
-        @param s sequence : A sequence of wave cycles
-        @param n int : The reuqired number of wave cycles in the new seuqence
+        @param waves sequence : A sequence of wave cycles
+        @param new_num int : The reuqired number of wave cycles in the new
+            seuqence
     """
 
-    inp = list(s)
-    on = len(inp)
+    inp = list(waves)
+    inp_num = len(inp)
 
-    if on >= n:
-        m = "Can't morph a group into a smaller or equal group ({0} to {1})"
-        raise ValueError(m.format(on, n))
+    if inp_num >= new_num:
+        msg = "Can't morph a group into a smaller or equal group ({0} to {1})"
+        raise ValueError(msg.format(inp_num, new_num))
 
-    if on < 2:
-        m = "Can't morph between less than 2 signals ({0})"
-        raise ValueError(m.format(on))
+    if inp_num < 2:
+        msg = "Can't morph between less than 2 signals ({0})"
+        raise ValueError(msg.format(inp_num))
 
-    if on is 2:
-        return __morph_two(inp[0], inp[1], n)
+    if inp_num is 2:
+        return __morph_two(inp[0], inp[1], new_num)
 
-    ranges = __detrmine_morph_ranges(on, n)
+    ranges = __detrmine_morph_ranges(inp_num, new_num)
 
     return __morph_many(inp, ranges)
 
 
-def __detrmine_morph_ranges(n, nn):
+def __detrmine_morph_ranges(inp_num, new_num):
     """ Find a set of integer gaps sizes between two set sizes
 
-        @param n int : The original set size
-        @param nn int : The new set size
+        @param inp_num int : The original set size
+        @param new_num int : The new set size
     """
 
-    bn = n - 1
-    gs = int(round(float(nn) / bn, 0))
-    ranges = [gs if j is 0 else gs + 1 for j in range(bn)]
+    gap_num = inp_num - 1
+    gap_val = int(round(float(new_num) / gap_num, 0))
+    ranges = [gap_val if j is 0 else gap_val + 1 for j in range(gap_num)]
     k = -1
-    while sum(ranges) < nn + bn - 1:
+    while sum(ranges) < new_num + gap_num - 1:
         ranges[k] += 1
         k -= 1
-    while sum(ranges) > nn + bn - 1:
+    while sum(ranges) > new_num + gap_num - 1:
         ranges[k] -= 1
         k -= 1
 
     return ranges
 
 
-def __morph_many(s, r):
+def __morph_many(waves, gaps):
     """ Morph between more then two sequences
 
-        @param s sequence : A sequence of wave cycles
-        @param r sequence : The size of the gap between each pair of cycles
+        @param waves sequence : A sequence of wave cycles
+        @param gaps sequence : The size of the gap between each pair of cycles
     """
 
     morphed = []
-    a = None
+    prev_wave = None
     i = 0
-    for b in s:
-        if a is not None:
+    for curr_wave in waves:
+        if prev_wave is not None:
             if i is 0:
-                o = 0
+                start = 0
             else:
-                o = 1
+                start = 1
 
-            n = [x for x in __morph_two(a, b, r[i])][o:]
-            morphed.extend(n)
+            morphed.extend(
+                [x for x in __morph_two(
+                    prev_wave, curr_wave, gaps[i])][start:])
             i += 1
 
-        a = b
+        prev_wave = curr_wave
 
     return morphed
 
 
-def __morph_two(a, b, n):
+def __morph_two(wave_one, wave_two, new_num):
     """ Morph between two wave cycles.
 
         @param a sequence : The first wave cycle
@@ -161,6 +164,6 @@ def __morph_two(a, b, n):
         @param n int : The reuqired number of wave cycles in the new seuqence
     """
 
-    alphas = (s / (n - 1.0) for s in range(n))
+    alphas = (s / (new_num - 1.0) for s in range(new_num))
 
-    return [a * (1 - m) + b * m for m in alphas]
+    return [wave_one * (1 - m) + wave_two * m for m in alphas]

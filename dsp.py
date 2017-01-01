@@ -44,8 +44,8 @@ def tube(inp, amount, bias=0):
     gain = 1 + amount
     inp += bias
     inp *= gain
-    for i, s in enumerate(inp):
-        inp[i] = math.exp(-np.logaddexp(0, -s))
+    for i, val in enumerate(inp):
+        inp[i] = math.exp(-np.logaddexp(0, -val))
 
     inp *= 2
     inp -= 1
@@ -65,11 +65,11 @@ def fold(inp, amount, bias=0):
     inp += bias
     inp *= gain
     while (max(abs(inp))) > 1:
-        for i, s in enumerate(inp):
-            if s > 1:
-                inp[i] = 2 - s
-            if s < -1:
-                inp[i] = -2 - s
+        for i, val in enumerate(inp):
+            if val > 1:
+                inp[i] = 2 - val
+            if val < -1:
+                inp[i] = -2 - val
 
     return normalise(inp)
 
@@ -83,7 +83,7 @@ def shape(inp, amount, bias=0, power=3):
         @param power : Polynomial power
     """
 
-    shaped = np.power(inp, power) * amount
+    shaped = np.power(inp + bias, power) * amount
     inp *= (1 - amount)
     inp += shaped
 
@@ -101,18 +101,17 @@ def slew(inp, rate, inv=False):
                           slew will be applied. (default=False).
     """
 
-    a = rate
-    p = 0.
+    prev = 0.
     # process twice in order to allow for settling
-    for m in range(2):
-        for i, s in enumerate(inp):
+    for num in range(2):
+        for i, val in enumerate(inp):
             if inv:
-                c = p * (a - 1.) + (s * a)
+                curr = prev * (rate - 1.) + (val * rate)
             else:
-                c = s * (1. - a) + (p * a)
-            p = c
-            if m > 0:
-                inp[i] = c
+                curr = val * (1. - rate) + (prev * rate)
+            prev = curr
+            if num > 0:
+                inp[i] = curr
 
     return normalise(inp)
 
@@ -125,19 +124,16 @@ def downsample(inp, factor):
     """
 
     if factor < 1:
-        m = "Downsampling factor ({0}) cannot be < 1"
-        raise ValueError(m.format(self.downsample_factor))
+        raise ValueError(
+            "Downsampling factor ({0}) cannot be < 1".format(factor))
 
     if factor == 1:
         return inp
     else:
         # the aliasing is deliberate!
-        ns = 0
-        f = factor
-
-        for i, s in enumerate(inp):
-            if i % f == 0:
-                last = s
+        for i, val in enumerate(inp):
+            if i % factor == 0:
+                last = val
             else:
                 inp[i] = last
 
@@ -151,12 +147,12 @@ def quantise(inp, depth):
         @param depth number : New bit depth in bits
     """
 
-    m = 2 ** depth - 1
+    scale = 2 ** depth - 1
 
-    for i, s in enumerate(inp):
-        if s > 0:
-            inp[i] = np.ceil(s * m) / m
-        elif s < 0:
-            inp[i] = np.floor(s * m) / m
+    for i, val in enumerate(inp):
+        if val > 0:
+            inp[i] = np.ceil(val * scale) / scale
+        elif val < 0:
+            inp[i] = np.floor(val * scale) / scale
 
     return normalise(inp)
