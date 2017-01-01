@@ -18,6 +18,7 @@ import sig
 import dsp
 
 STORE_FILES = True
+SHOW_PLOTS = False
 
 
 def make_osc_path():
@@ -41,8 +42,8 @@ def render(zwt, name):
         zosc.write_wavetable(zwt, os.path.join(osc_path, fname))
         fname = name + '.wav'
         wavfile.write_wavetable(zwt, os.path.join(osc_path, fname))
-
-    visualise.plot_wavetable(zwt, title=name)
+    if SHOW_PLOTS:
+        visualise.plot_wavetable(zwt, title=name)
 
 
 def main():
@@ -107,15 +108,10 @@ def main():
     # in this example, one slot is filled with random data, but any data,
     # generated or, say, read in from a wav file, can be used.
 
-    # generate some random data
-    random_data = np.random.uniform(low=-1, high=1, size=128)
-
     # the custom signal generator function automatically normaises and scales
     # any data you throw at it to the right ranges, which is useful.
-    random_wave = sig_gen.arb(random_data)
-
-    # set the wavetable and store it as an oscillator
-    zwt.waves = [random_wave]
+    zwt.waves = [sig_gen.arb(np.random.uniform(low=-1, high=1, size=128))
+                 for _ in range(16)]
 
     render(zwt, 'osc_gen_random')
 
@@ -159,6 +155,23 @@ def main():
                            slewed_square), 16)
 
     render(zwt, 'osc_gen_dsp')
+
+    # example 7: longer wavetables, more processing and writing a wav file
+
+    # wavetables can have any number of slots, this one has 120 slots
+    lwt = wavetable.WaveTable(num_waves=120)
+
+    # similarly, a signal generator can generate any number of samples
+    # a waveform coresponding to the frequency of C3 at 44.1 kHz would
+    # have approx. 337 samples.
+    mc_sig_gen = sig.SigGen()
+    mc_sig_gen.num_points = 337
+
+    # create ever-decreasing wave folding distortion over the wavetable
+    lwt.waves = [dsp.fold(mc_sig_gen.sin(), (lwt.num_waves - i) / 50.)
+                 for i in range(lwt.num_waves)]
+
+    wavfile.write_wavetable(lwt, 'folding.wav')
 
 
 if __name__ == "__main__":
