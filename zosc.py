@@ -8,11 +8,7 @@ def write_wavetable(wavetable, filename):
         @param filename str : File name to write to
     """
 
-    table_size = None
-    for wave in wavetable.waves:
-        if wave is not None:
-            table_size = len(wave)
-            break
+    table_size = wavetable.wave_len
 
     if table_size is None:
         return
@@ -30,16 +26,19 @@ def write_wavetable(wavetable, filename):
         osc_file.write("];\n")
         osc_file.write("\n")
 
-        for i, wave in enumerate(wavetable.waves):
+        for i, wave in enumerate(wavetable.get_waves()):
 
             if wave is None:
                 continue
 
+            wave_num = i + 1
+            # scale to avoid overflow resulting from finite precision
+            scaled_wave = wave * 0.999969
             osc_file.write("//table ")
-            osc_file.write(str(i))
+            osc_file.write(str(wave_num))
             osc_file.write("\n")
 
-            for index, value in enumerate(wave):
+            for index, value in enumerate(scaled_wave):
                 osc_file.write("Wave[")
                 osc_file.write(str(index))
                 osc_file.write("] = ")
@@ -47,7 +46,7 @@ def write_wavetable(wavetable, filename):
                 osc_file.write(";\n")
 
             osc_file.write("Selected.WaveTable.set(")
-            osc_file.write(str(i))
+            osc_file.write(str(wave_num))
             osc_file.write(", Wave);\n")
             osc_file.write("\n")
 
