@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """ Tools for generating and interpolating between waeform cycles. """
 
-import dsp
-
 import numpy as np
+
+from osc_gen import dsp
 
 
 class SigGen(object):

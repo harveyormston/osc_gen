@@ -11,12 +11,12 @@
 import os
 
 import numpy as np
-import visualise
-import wavetable
-import wavfile
-import zosc
-import sig
-import dsp
+from osc_gen import visualise
+from osc_gen import wavetable
+from osc_gen import wavfile
+from osc_gen import zosc
+from osc_gen import sig
+from osc_gen import dsp
 
 STORE_FILES = True
 SHOW_PLOTS = False

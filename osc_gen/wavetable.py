@@ -4,7 +4,7 @@
 import numpy as np
 
 
-class WaveTable():
+class WaveTable(object):
     """ An n-slot wavetable """
 
     def __init__(self, waves=None, num_waves=16, wave_len=128):
