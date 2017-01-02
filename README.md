@@ -1,5 +1,5 @@
 # osc_gen
-Python modules to create and manage oscillator wavetables.
+Python package to create and manage oscillator wavetables.
 
 # Examples
 
