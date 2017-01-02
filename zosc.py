@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """ Zebra2 Oscillator wavetable """
 
 

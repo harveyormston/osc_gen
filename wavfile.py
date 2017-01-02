@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """ Extend wavfile to read data as normalised float """
 
 try:

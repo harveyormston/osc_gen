@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """ Tools for generating and interpolating between waeform cycles. """
 
 import dsp

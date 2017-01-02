@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """ These examples show how to:
 
     - use the sig module to generate oscillator shapes.

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """ Process waveforms """
 
 import math

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """ Zebra oscillator waves """
 
 import numpy as np
