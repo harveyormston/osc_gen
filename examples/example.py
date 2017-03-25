@@ -173,7 +173,7 @@ def main():
     lwt.waves = [dsp.fold(mc_sig_gen.sin(), (lwt.num_waves - i) / 50.)
                  for i in range(lwt.num_waves)]
 
-    wavfile.write_wavetable(lwt, 'folding.wav')
+    wavfile.write_wavetable(lwt, os.path.join(make_osc_path(), 'folding.wav'))
 
 
 if __name__ == "__main__":
