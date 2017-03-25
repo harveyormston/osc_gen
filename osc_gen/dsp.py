@@ -75,16 +75,30 @@ def fold(inp, amount, bias=0):
     return normalise(inp)
 
 
-def shape(inp, amount, bias=0, power=3):
+def shape(inp, amount=1, bias=0, power=3):
     """ Perform polynomial waveshaping
 
         @param inp seq : A sequence of samples
         @param amount number : Amount of shaping
+            (1: maximum shaping, 0: no shaping)
         @param bias number : Pre-distortion DC bias
-        @param power : Polynomial power
+        @param power number : Polynomial power
     """
 
-    shaped = np.power(inp + bias, power) * amount
+    # make a copy of the input to apply bias
+    inp_b = np.empty_like(inp)
+    inp_b[:] = inp + bias
+    normalise(inp_b)
+
+    # make another copy to apply polynomial shaping to the biased input
+    shaped = np.empty_like(inp_b)
+    # shape positive and negative halves of the signal symmetrically
+    shaped[inp_b >= 0] = np.power(inp_b[inp_b >= 0], power) * amount
+    shaped[inp_b < 0] = -np.power(-inp_b[inp_b < 0], power) * amount
+    # de-bais
+    shaped -= bias
+    normalise(shaped)
+
     inp *= (1 - amount)
     inp += shaped
 
