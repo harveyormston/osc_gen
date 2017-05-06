@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" Tools for generating and interpolating between waeform cycles. """
+""" Tools for generating and interpolating between waveform cycles. """
 
 import numpy as np
 
