@@ -34,22 +34,20 @@ class SigGen(object):
     def tri(self):
         """ Generate a triangle wave cycle """
 
-        return abs(self.__base()) * -2 + 1
+        return np.absolute(self.__base()) * -2 + 1
 
     def pls(self, width):
         """ Generate a pulse wave cycle
 
-            @param pw float : Pulse width or duty cycle, between -1 and 1
+            @param width float : Pulse width or duty cycle, between -1 and 1,
+                where 0 corresponds to a square wave.
         """
 
-        def threshold(val, thresh):
-            """ Test whether val is above a threshold """
-            if val < thresh:
-                return -1.
-            else:
-                return 1.
+        p = self.__base()
+        p[np.where(p < width)[0]] = -1.
+        p[np.where(p >= width)[0]] = 1.
 
-        return np.array([threshold(x, width) for x in self.__base()])
+        return p
 
     def sqr(self):
         """ Generate a square wave cycle """
