@@ -85,22 +85,20 @@ def shape(inp, amount=1, bias=0, power=3):
         @param power number : Polynomial power
     """
 
-    # make a copy of the input to apply bias
-    inp_b = np.empty_like(inp)
-    inp_b[:] = inp + bias
-    normalise(inp_b)
+    biased = inp + bias
+    normalise(biased)
 
     # make another copy to apply polynomial shaping to the biased input
-    shaped = np.empty_like(inp_b)
+    shaped = np.empty_like(biased)
     # shape positive and negative halves of the signal symmetrically
-    shaped[inp_b >= 0] = np.power(inp_b[inp_b >= 0], power) * amount
-    shaped[inp_b < 0] = -np.power(-inp_b[inp_b < 0], power) * amount
+    shaped[biased >= 0] = np.power(biased[biased >= 0], power) * amount
+    shaped[biased < 0] = -np.power(-biased[biased < 0], power) * amount
     # de-bais
     shaped -= bias
     normalise(shaped)
 
     inp *= (1 - amount)
-    inp += shaped
+    inp += shaped * amount
 
     return normalise(inp)
 

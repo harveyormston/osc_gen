@@ -175,6 +175,12 @@ def main():
 
     wavfile.write_wavetable(lwt, os.path.join(make_osc_path(), 'folding.wav'))
 
+    # create ever-increasing wave shaping distortion over the wavetable
+    lwt.waves = [dsp.shape(mc_sig_gen.sin(), power=i + 1)
+                 for i in range(lwt.num_waves)]
+
+    wavfile.write_wavetable(lwt, os.path.join(make_osc_path(), 'shaping.wav'))
+
 
 if __name__ == "__main__":
     main()
