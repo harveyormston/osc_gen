@@ -169,3 +169,13 @@ def quantise(inp, depth):
             inp[i] = np.floor(val * scale) / scale
 
     return normalise(inp)
+
+
+def fundamental(inp, fs):
+    """ Find the fundamental frequency in Hz of a given input """
+
+    w = np.fft.fft(inp)
+    f = np.fft.fftfreq(len(w))
+    i = np.argmax(np.abs(w))
+
+    return abs(f[i] * fs)
