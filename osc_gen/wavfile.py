@@ -35,24 +35,30 @@ def _ibytes_to_float(vals):
 def _read_using_wave(filename):
 
     wave_file = wave.open(filename, 'r')
+
     if wave_file.getnchannels() != 1:
         raise ValueError("only mono supported")
+
     if wave_file.getsampwidth() != 2:
         raise ValueError("only 16 bit supported")
+
     num_frames = wave_file.getnframes()
-    return _ibytes_to_float(wave_file.readframes(num_frames))
+    data = _ibytes_to_float(wave_file.readframes(num_frames))
+    fs = wave_file.getframerate()
+
+    return data, fs
 
 
-def read(filename):
+def read(filename, with_sample_rate=False):
     """ Read wav file and convert to normalised float """
 
     if HAS_SOUNDFILE:
-        data, _ = sf.read(filename)
+        data, fs = sf.read(filename)
         # take only the first channel of the audio
         if len(data.shape) > 1:
             data = np.swapaxes(data, 0, 1)[0]
     else:
-        data = _read_using_wave(filename)
+        data, fs = _read_using_wave(filename)
 
     # center on 0
     data = data.astype(float)
@@ -60,7 +66,12 @@ def read(filename):
 
     # normalise to +/- 1.0
     data_max = max(abs(data))
-    return data / data_max
+    data /= data_max
+
+    if with_sample_rate:
+        return data, fs
+    else:
+        return data
 
 
 def write(data, filename, samplerate=44100):
