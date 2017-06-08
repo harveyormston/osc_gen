@@ -3,6 +3,10 @@
 
 import numpy as np
 
+from osc_gen import wavfile
+from osc_gen import dsp
+from osc_gen import sig
+
 
 class WaveTable(object):
     """ An n-slot wavetable """
@@ -40,3 +44,20 @@ class WaveTable(object):
 
         for i in range(self.num_waves):
             yield self.get_wave_at_index(i)
+
+    def populate_from_wav(self, filename):
+        """
+        Populate the wavetable from a wav file by filling all slots with evenly-spaced
+        single cycles from the wav file.
+        """
+
+        sg = sig.SigGen()
+        a, fs = wavfile.read(filename, with_sample_rate=True)
+
+        freq = dsp.fundamental(a, fs)
+        cycle_length = fs / freq
+        end = len(a) - cycle_length
+        slots = np.arange(0, end, cycle_length)
+        slots = np.around(slots).astype(int)
+
+        self.waves = [sg.arb(a[x:x + int(cycle_length)]) for x in slots]
