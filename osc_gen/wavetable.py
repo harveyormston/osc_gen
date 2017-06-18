@@ -86,6 +86,7 @@ class WaveTable(object):
         cycles = [a[x:x + int(samples_per_cycle)] for x in slots]
 
         sg = sig.SigGen()
-        wvs = [sg.arb(cycle) for cycle in cycles]
 
-        return WaveTable(wvs, num_waves=self.num_waves, wave_len=self.wave_len)
+        return WaveTable([sg.arb(c) for c in cycles],
+                         num_waves=self.num_waves,
+                         wave_len=self.wave_len)
