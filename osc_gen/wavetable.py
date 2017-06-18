@@ -57,7 +57,12 @@ class WaveTable(object):
     def from_wav(self, filename):
         """
         Populate the wavetable from a wav file by filling all slots with
-        evenly-spaced single cycles from the wav file.
+        evenly-spaced single cycles from a wav file.
+
+        @param filename str : Wav file name.
+
+        @returns WaveTable : self, populated by content from the wav file
+        settings as this one
         """
 
         def nearest(arr, val):
@@ -86,7 +91,6 @@ class WaveTable(object):
         cycles = [a[x:x + int(samples_per_cycle)] for x in slots]
 
         sg = sig.SigGen()
+        self.waves = [sg.arb(c) for c in cycles]
 
-        return WaveTable([sg.arb(c) for c in cycles],
-                         num_waves=self.num_waves,
-                         wave_len=self.wave_len)
+        return self
