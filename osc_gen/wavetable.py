@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 """ Zebra oscillator waves """
 
+from __future__ import division
+from __future__ import print_function
 import numpy as np
 
 from osc_gen import wavfile
@@ -12,16 +14,20 @@ class WaveTable(object):
     """ An n-slot wavetable """
 
     def __init__(self, waves=None, num_waves=16, wave_len=128):
-        """ Init
+        """
+        Init
 
-            @param waves sequence : A sequence of numpy arrays containing wave
-                data to form the wavetable
+        @param waves sequence : A sequence of numpy arrays containing wave
+            data to form the wavetable
         """
 
-        self.waves = []
         self.num_waves = num_waves
         self.wave_len = wave_len
-        self.waves = waves
+
+        if waves is None:
+            self.waves = []
+        else:
+            self.waves = waves
 
     def clear(self):
         """ Clear the wavetable so that all slots contain zero """
@@ -29,9 +35,12 @@ class WaveTable(object):
         self.waves = []
 
     def get_wave_at_index(self, index):
-        """ Get the wave at a specific slot index
+        """
+        Get the wave at a specific slot index
 
-            @param index int : The slot index to get the wave from
+        @param index int : The slot index to get the wave from
+
+        @returns np.ndarray : Wavefore at given index
         """
 
         if index >= len(self.waves):
@@ -45,19 +54,38 @@ class WaveTable(object):
         for i in range(self.num_waves):
             yield self.get_wave_at_index(i)
 
-    def populate_from_wav(self, filename):
+    def from_wav(self, filename):
         """
-        Populate the wavetable from a wav file by filling all slots with evenly-spaced
-        single cycles from the wav file.
+        Populate the wavetable from a wav file by filling all slots with
+        evenly-spaced single cycles from the wav file.
         """
 
-        sg = sig.SigGen()
+        def nearest(arr, val):
+            """ find the nearest value in an array to a given value """
+            return arr[np.argmin(np.absolute(arr - val))]
+
         a, fs = wavfile.read(filename, with_sample_rate=True)
 
-        freq = dsp.fundamental(a, fs)
-        cycle_length = fs / freq
-        end = len(a) - cycle_length
-        slots = np.arange(0, end, cycle_length)
-        slots = np.around(slots).astype(int)
+        zero_crossings = np.where(np.diff(np.sign(a)) > 0)[0] + 1
 
-        self.waves = [sg.arb(a[x:x + int(cycle_length)]) for x in slots]
+        if len(zero_crossings) < 1:
+            raise ValueError("No zero crossings found.")
+
+        freq = dsp.fundamental(a, fs)
+        samples_per_cycle = fs / freq
+        end = len(a) - samples_per_cycle
+
+        # Split the input into a number of indivdual cycles, evenly spaced
+        # throughout the signal.
+        # The number of cycles will be, at most, self.num_waves (less for a
+        # input so short that there are not that many complete cycles)
+        # The start of each cycle occurs at a zero crossing.
+        slots = np.linspace(0, end, self.num_waves)
+        slots = np.around(slots).astype(int)
+        slots = np.unique([nearest(zero_crossings, slot) for slot in slots])
+        cycles = [a[x:x + int(samples_per_cycle)] for x in slots]
+
+        sg = sig.SigGen()
+        wvs = [sg.arb(cycle) for cycle in cycles]
+
+        return WaveTable(wvs, num_waves=self.num_waves, wave_len=self.wave_len)
