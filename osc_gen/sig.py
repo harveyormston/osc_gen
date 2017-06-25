@@ -16,25 +16,35 @@ class SigGen(object):
         self.amp = 1.0
         self.offset = 0.0
         self.harmonic = harmonic
+        self.phase = 0
 
     def __base(self):
         """ Generate the base waveform cycle, a sawtooth or ramp from -1 to 1
         """
 
-        repeats = 2 ** self.harmonic
-        num = self.num_points / repeats
-        cycle = np.linspace(-1., 1., num=num)
-        return np.tile(cycle, repeats)
+        repeats = self.harmonic + 1
+
+        normalized_phase = self.phase / (2 * np.pi)
+
+        start = normalized_phase
+        stop = repeats + normalized_phase
+        wave = np.linspace(start, stop, num=self.num_points)
+
+        wave %= 1
+        wave *= 2
+        wave -= 1
+
+        return wave
 
     def saw(self):
         """ Generate a sawtooth wave cycle """
 
-        return self.__base()
+        return self.amp * self.__base()
 
     def tri(self):
         """ Generate a triangle wave cycle """
 
-        return np.absolute(self.__base()) * -2 + 1
+        return self.amp * (np.abs(self.__base()) * -2 + 1)
 
     def pls(self, width):
         """ Generate a pulse wave cycle
@@ -47,7 +57,7 @@ class SigGen(object):
         p[np.where(p < width)[0]] = -1.
         p[np.where(p >= width)[0]] = 1.
 
-        return p
+        return self.amp * p
 
     def sqr(self):
         """ Generate a square wave cycle """
@@ -57,12 +67,12 @@ class SigGen(object):
     def sin(self):
         """ Generate a sine wave cycle """
 
-        return np.sin(np.pi * (self.__base() + 0.5))
+        return self.amp * np.sin(np.pi * (self.__base() + 0.5))
 
     def arb(self, data):
         """ Generate an arbitrary wave cycle. The provided data will be
         interpolated, if possible, to occupy the correct number of samples for
-        a single cycle at our reference frequency and then normalised and
+        a single cycle at our reference frequency and then normalized and
         scaled as appropriate.
 
         @param data seq : A sequence of samples representing a single cycle
@@ -74,7 +84,8 @@ class SigGen(object):
         interp_x = np.linspace(0, num, num=num)
         interp_xx = np.linspace(0, num, num=self.num_points)
         interp_yy = np.interp(interp_xx, interp_x, interp_y)
-        dsp.normalise(interp_yy)
+        dsp.normalize(interp_yy)
+
         return interp_yy
 
 

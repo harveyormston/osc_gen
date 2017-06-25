@@ -141,19 +141,19 @@ def main():
     # let's try that again with some slew this time, to smooth it out a bit
     slewed = dsp.slew(dsp.downsample(sig_gen.sin(), 16), 0.8)
 
-    # generate a triangle wave and quantise (bit crush) it
-    quantised = dsp.quantise(sig_gen.tri(), 3)
+    # generate a triangle wave and quantize (bit crush) it
+    quantized = dsp.quantize(sig_gen.tri(), 3)
 
     # applying inverse slew, or overshoot, to a square wave
     slewed_square = dsp.slew(sig_gen.sqr(), 0.8, inv=True)
 
-    # overshoot might make the wave quieter, so let's normalise it
-    dsp.normalise(slewed_square)
+    # overshoot might make the wave quieter, so let's normalize it
+    dsp.normalize(slewed_square)
 
     # morph between the waves over 16 slots
     zwt.waves = sig.morph((downsampled,
                            slewed,
-                           quantised,
+                           quantized,
                            slewed_square), 16)
 
     render(zwt, 'osc_gen_dsp')

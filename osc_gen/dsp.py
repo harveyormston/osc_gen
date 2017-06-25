@@ -2,12 +2,14 @@
 """ Process waveforms """
 
 import math
+from copy import deepcopy
 
+import matplotlib.pyplot as plt
 import numpy as np
 
 
-def normalise(inp):
-    """ Normalise a signal to the range +/- 1
+def normalize(inp):
+    """ Normalize a signal to the range +/- 1
 
         @param inp seq : A sequence of samples
     """
@@ -31,7 +33,7 @@ def clip(inp, amount, bias=0):
     inp *= gain
     np.clip(inp, -1., 1., out=inp)
 
-    return normalise(inp)
+    return normalize(inp)
 
 
 def tube(inp, amount, bias=0):
@@ -51,7 +53,7 @@ def tube(inp, amount, bias=0):
     inp *= 2
     inp -= 1
 
-    return normalise(inp)
+    return normalize(inp)
 
 
 def fold(inp, amount, bias=0):
@@ -72,7 +74,7 @@ def fold(inp, amount, bias=0):
             if val < -1:
                 inp[i] = -2 - val
 
-    return normalise(inp)
+    return normalize(inp)
 
 
 def shape(inp, amount=1, bias=0, power=3):
@@ -86,7 +88,7 @@ def shape(inp, amount=1, bias=0, power=3):
     """
 
     biased = inp + bias
-    normalise(biased)
+    normalize(biased)
 
     # make another copy to apply polynomial shaping to the biased input
     shaped = np.empty_like(biased)
@@ -95,12 +97,12 @@ def shape(inp, amount=1, bias=0, power=3):
     shaped[biased < 0] = -np.power(-biased[biased < 0], power) * amount
     # de-bais
     shaped -= bias
-    normalise(shaped)
+    normalize(shaped)
 
     inp *= (1 - amount)
     inp += shaped * amount
 
-    return normalise(inp)
+    return normalize(inp)
 
 
 def slew(inp, rate, inv=False):
@@ -126,7 +128,7 @@ def slew(inp, rate, inv=False):
             if num > 0:
                 inp[i] = curr
 
-    return normalise(inp)
+    return normalize(inp)
 
 
 def downsample(inp, factor):
@@ -150,10 +152,10 @@ def downsample(inp, factor):
             else:
                 inp[i] = last
 
-    return normalise(inp)
+    return normalize(inp)
 
 
-def quantise(inp, depth):
+def quantize(inp, depth):
     """ Reduce the bit depth of a signal.
 
         @param inp seq : A sequence of samples
@@ -168,14 +170,104 @@ def quantise(inp, depth):
         elif val < 0:
             inp[i] = np.floor(val * scale) / scale
 
-    return normalise(inp)
+    return normalize(inp)
 
 
 def fundamental(inp, fs):
     """ Find the fundamental frequency in Hz of a given input """
 
-    w = np.fft.fft(inp)
+    h = np.hamming(len(inp))
+    w = np.fft.fft(inp * h)
     f = np.fft.fftfreq(len(w))
     i = np.argmax(np.abs(w))
 
     return abs(f[i] * fs)
+
+
+def harmonic_series(inp):
+    """ Find the harmonic series of a periodic input """
+
+    L = len(inp) // 501
+    M = 501 * L
+
+    if len(inp) < M:
+        raise ValueError("Got {0} samples, need at least {1}.".format(len(inp), M))
+
+    # produce symmetrical, windowed fft
+    hM1 = int(np.floor((M + 1) / 2))
+    hM2 = int(np.floor(M / 2))
+    x1 = inp[:M] * np.hamming(M)
+    N = 1024 * L
+    buf = np.zeros(N)
+    buf[:hM1] = x1[hM2:]
+    buf[N - hM2:] = x1[:hM2]
+    fft = np.fft.fft(buf)[:N // 2]
+
+    # peak amplitude assumed to be fundamental frequency
+    i_fund = np.argmax(np.abs(fft))
+
+    # get fft components from only the harmonics, harmonics are picked by
+    # taking the value with the highest amplitude around each harmonic
+    # frequency
+    ws = i_fund // 4
+    hs = np.array(
+        [fft[i - ws:i + ws][np.abs(fft[i - ws:i + ws]).argmax()]
+         for i in range(i_fund, N // 2, i_fund)])
+
+    # normalize magnitude and phase
+    hs_amp = np.abs(hs)
+    hs_ang = np.angle(hs)
+    hs = hs_amp * np.exp(1j * (hs_ang - hs_ang[0])) / hs_amp[0]
+
+    return hs
+
+
+def slice_cycles(inp, n, fs):
+    """ Extact n single-cycle slices from a signal """
+
+    def nearest(arr, val):
+        """ find the nearest value in an array to a given value """
+        return arr[np.argmin(np.abs(arr - val))]
+
+    zero_crossings = np.where(np.diff(np.sign(inp)) > 0)[0] + 1
+
+    if len(zero_crossings) < 1:
+        raise ValueError("No zero crossings found.")
+
+    freq = fundamental(inp, fs)
+    samples_per_cycle = fs / freq
+    end = len(inp) - samples_per_cycle
+
+    slots = np.linspace(0, end, n)
+    slots = np.around(slots).astype(int)
+    slots = np.unique([nearest(zero_crossings, slot) for slot in slots])
+
+    return [inp[x:x + int(samples_per_cycle)] for x in slots]
+
+
+def resynthesize(inp, sig_gen):
+    """
+    Resynthesize a signal from its harmonic series
+
+    @param sig_gen SigGen : SigGen to use for regenerating the signal.
+    """
+
+    sg = deepcopy(sig_gen)
+    max_harmonic = sig_gen.num_points // 2
+    hs = harmonic_series(inp)
+    s = np.zeros(sg.num_points)
+
+    for i, h in enumerate(hs):
+
+        sg.harmonic = i
+        sg.amp = np.abs(h)
+        sg.phase = np.angle(h)
+
+        s += sg.sin()
+
+        if i >= max_harmonic:
+            break
+
+    normalize(s)
+
+    return s

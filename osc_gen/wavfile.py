@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" Extend wavfile to read data as normalised float """
+""" Extend wavfile to read data as normalized float """
 
 try:
     import soundfile as sf
@@ -50,7 +50,7 @@ def _read_using_wave(filename):
 
 
 def read(filename, with_sample_rate=False):
-    """ Read wav file and convert to normalised float """
+    """ Read wav file and convert to normalized float """
 
     if HAS_SOUNDFILE:
         data, fs = sf.read(filename)
@@ -64,7 +64,7 @@ def read(filename, with_sample_rate=False):
     data = data.astype(float)
     data -= np.mean(data)
 
-    # normalise to +/- 1.0
+    # normalize to +/- 1.0
     data_max = max(abs(data))
     data /= data_max
 

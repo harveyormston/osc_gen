@@ -133,17 +133,17 @@ Let's try that again with some slew this time, to smooth it out a bit:
 
         sw = dsp.slew(dsp.downsample(sg.sin(), 16), 0.8)
 
-Generate a triangle wave and quantise (bit crush) it:
+Generate a triangle wave and quantize (bit crush) it:
 
-        qt = dsp.quantise(sg.tri(), 3)
+        qt = dsp.quantize(sg.tri(), 3)
 
 Applying inverse slew, or overshoot, to a square wave:
 
         ss = dsp.slew(sg.sqr(), 0.8, inv=True)
 
-Overshoot might make the wave quieter, so let's normalise it:
+Overshoot might make the wave quieter, so let's normalize it:
 
-        dsp.normalise(ss)
+        dsp.normalize(ss)
 
 Morph between the waves over 16 slots:
 
