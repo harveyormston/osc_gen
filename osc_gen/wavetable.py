@@ -76,9 +76,23 @@ class WaveTable(object):
             sig_gen = sig.SigGen()
 
         if resynthesize:
-            a = a[:len(a) - (len(a) % self.num_waves)]
-            sections = np.split(a, self.num_waves)
-            self.waves = [dsp.resynthesize(s, sig_gen) for s in sections]
+
+            num_sections = self.num_waves
+
+            while 1:
+                a = a[:len(a) - (len(a) % num_sections)]
+                sections = np.split(a, num_sections)
+                try:
+                    self.waves = [dsp.resynthesize(s, sig_gen) for s in sections]
+                    break
+                except dsp.NotEnoughSamplesError as e:
+                    num_sections -= 1
+                    if num_sections <= 0:
+                        raise e
+
+            if num_sections < self.num_waves:
+                self.waves = sig.morph(self.waves, self.num_waves)
+
         else:
             cycles = dsp.slice_cycles(a, self.num_waves, fs)
             self.waves = [sig_gen.arb(c) for c in cycles]

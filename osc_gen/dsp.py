@@ -4,8 +4,12 @@
 import math
 from copy import deepcopy
 
-import matplotlib.pyplot as plt
 import numpy as np
+
+
+class NotEnoughSamplesError(Exception):
+    """ Not Enough Samples """
+    pass
 
 
 def normalize(inp):
@@ -187,11 +191,10 @@ def fundamental(inp, fs):
 def harmonic_series(inp):
     """ Find the harmonic series of a periodic input """
 
-    L = len(inp) // 501
+    L = min(64, len(inp) // 501)
     M = 501 * L
-
     if len(inp) < M:
-        raise ValueError("Got {0} samples, need at least {1}.".format(len(inp), M))
+        raise NotEnoughSamplesError("Got {0} samples, need at least {1}.".format(len(inp), M))
 
     # produce symmetrical, windowed fft
     hM1 = int(np.floor((M + 1) / 2))
