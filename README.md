@@ -149,3 +149,30 @@ Morph between the waves over 16 slots:
 
         wt.waves = sig.morph((ds, sw, qt, ss), 16)
         zosc.write_wavetable('osc_gen_dsp.h2p')
+
+
+## Using Samples
+
+Samples can be used to populate a wavetable using one of two methods: slicing
+and resynthesis. Both methods involve finding the fundamental frequency of the
+audio in the wav file and generating wavetable slots containing a multiple
+single cycles of the waveform.
+
+Slicing in relatively simple - the input audio is sliced at regular intervals
+to extract individual cycles of the tone.
+
+Resynthesis, on the other hand, uses Fourier analysis to reconstruct cycles of
+the waveform based on the magnitude of the harmonics observed in the input.
+
+Slicing gives results which will match the original audio exactly, but small
+errors may result in unwanted harmonic content. Resynthesis gives more
+predictable harmonic content but may discard information from the original
+audio.
+
+    mywavfile = 'saw_wave.wav'
+
+    # resynthesize
+    wt = wavetable.WaveTable().from_wav('mywavefile.wav', resynthesize=True)
+
+    # slice
+    wt = wavetable.WaveTable().from_wav('mywavefile.wav', resynthesize=False)
