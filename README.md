@@ -1,5 +1,41 @@
-# osc_gen
-Python package to create and manage oscillator wavetables.
+# Table of Contents
+
+<!-- vim-markdown-toc GFM -->
+* [About](#about)
+* [Requirements](#requirements)
+* [Examples](#examples)
+    * [Example Setup](#example-setup)
+    * [Generate and Save a Simple Saw Wave](#generate-and-save-a-simple-saw-wave)
+    * [Morphing Between Two Waveforms](#morphing-between-two-waveforms)
+    * [Morphing Between Many Waveforms](#morphing-between-many-waveforms)
+    * [Generating Your Own Waves](#generating-your-own-waves)
+    * [Pulse-width Modulation](#pulse-width-modulation)
+    * [Processing Waveforms](#processing-waveforms)
+* [Using Samples](#using-samples)
+
+<!-- vim-markdown-toc -->
+
+# About
+
+osc_gen is a Python library for creating and managing oscillator wavetables.
+
+Functionality includes:
+
+* Generating common waveforms (sine, saw, square, etc.)
+* Oscillator effects (waveshaping, distortion, downsampling, etc.)
+* Resynthesising or slicing audio from wav files or other sources
+* Saving wavetables to a wav file for use in samplers
+* Saving wavetables in .h2p format for use in the u-he Zebra2 synthesiser
+
+
+# Requirements
+
+osc_gen is developed for Python 3.6 but should be compatible with anything
+above Python 2.7.
+
+Python requirements can be installed using the provided requirements.txt i.e.
+
+        $ pip install -r requirements.txt
 
 # Examples
 
@@ -151,7 +187,7 @@ Morph between the waves over 16 slots:
         zosc.write_wavetable('osc_gen_dsp.h2p')
 
 
-## Using Samples
+# Using Samples
 
 Samples can be used to populate a wavetable using one of two methods: slicing
 and resynthesis. Both methods involve finding the fundamental frequency of the
