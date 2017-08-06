@@ -18,7 +18,7 @@ def normalize(inp):
         @param inp seq : A sequence of samples
     """
 
-    inp /= max(abs(inp))
+    inp /= np.amax(abs(inp))
 
     return inp
 
