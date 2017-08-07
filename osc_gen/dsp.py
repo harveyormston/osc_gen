@@ -18,7 +18,11 @@ def normalize(inp):
         @param inp seq : A sequence of samples
     """
 
-    inp /= np.amax(abs(inp))
+    inp -= (np.amax(inp) + np.amin(inp)) / 2
+    amp = np.amax(np.absolute(inp))
+
+    if amp > 0:
+        inp /= np.amax(abs(inp))
 
     return inp
 
@@ -92,7 +96,6 @@ def shape(inp, amount=1, bias=0, power=3):
     """
 
     biased = inp + bias
-    normalize(biased)
 
     # make another copy to apply polynomial shaping to the biased input
     shaped = np.empty_like(biased)
