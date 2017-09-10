@@ -81,7 +81,7 @@ class SigGen(object):
         """
 
         interp_y = data
-        num = len(interp_y)
+        num = interp_y.size
         interp_x = np.linspace(0, num, num=num)
         interp_xx = np.linspace(0, num, num=self.num_points)
         interp_yy = np.interp(interp_xx, interp_x, interp_y)
