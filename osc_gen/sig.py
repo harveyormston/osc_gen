@@ -111,7 +111,7 @@ def morph(waves, new_num):
         msg = "Can't morph between less than 2 signals ({0})"
         raise ValueError(msg.format(inp_num))
 
-    if inp_num is 2:
+    if inp_num == 2:
         return __morph_two(inp[0], inp[1], new_num)
 
     ranges = __detrmine_morph_ranges(inp_num, new_num)
