@@ -23,14 +23,15 @@ class SigGen(object):
         """
 
         repeats = self.harmonic + 1
-
         normalized_phase = self.phase / (2 * np.pi)
-
         start = normalized_phase
-        stop = repeats + normalized_phase
-        wave = np.linspace(start, stop, num=self.num_points)
+        stop = start + repeats
 
-        wave %= 1
+        wave = np.linspace(start, stop, num=self.num_points, dtype=np.float32)
+
+        # wrap and shift to +/- 1
+        wrap_threshold = np.finfo(np.float32).eps
+        wave %= 1 + wrap_threshold
         wave *= 2
         wave -= 1
 
