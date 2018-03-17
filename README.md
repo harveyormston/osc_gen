@@ -75,7 +75,7 @@ Put the saw wave into our wave table:
         wt.waves = [m]
 
 As we're only adding one wave to the wave table, only the first slot of the
-resulting oscillator in zebra will contain the saw. The remaining slots will
+resulting wavetable will contain the saw. The remaining slots will
 be empty, because we haven't added anything to those yet.
 
 Write the resulting oscillator to a file:
@@ -92,7 +92,7 @@ Write the resulting oscillator to a file:
 
 ## Morphing Between Two Waveforms
 
-We can use up all 16 slots in the zebra oscillator, even with fewer than 16
+We can use up all 16 slots in the wavetable, even with fewer than 16
 starting waveforms, if we use morph() to morph from one waveform to the
 other, to fill in the in-between slots.
 
