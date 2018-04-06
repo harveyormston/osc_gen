@@ -1,13 +1,14 @@
-# Status
+# Build Status
 
-[![CircleCI](https://circleci.com/gh/harveyormston/osc_gen.svg?style=svg)](https://circleci.com/gh/harveyormston/osc_gen)
+[![CircleCI](https://circleci.com/gh/harveyormston/osc_gen.svg?style=shield)](https://circleci.com/gh/harveyormston/osc_gen)
 
 # Table of Contents
 
 <!-- vim-markdown-toc GFM -->
 
 * [About](#about)
-* [Requirements](#requirements)
+* [Installation](#installation)
+* [Development](#development)
 * [Examples](#examples)
   * [Example Setup](#example-setup)
   * [Generate and Save a Simple Saw Wave](#generate-and-save-a-simple-saw-wave)
@@ -33,12 +34,17 @@ Functionality includes:
 * Saving wavetables in .h2p format for use in the u-he Zebra2 synthesiser
 
 
-# Requirements
+# Installation
 
-osc_gen is developed for Python 3.6 but should be compatible with anything
-above Python 2.7.
+osc_gen is [available on PyPI](https://pypi.org/project/osc-gen/#description) and can be installed using pip:
 
-Python requirements can be installed using the provided requirements.txt i.e.
+```sh
+$ pip install osc_gen
+```
+
+# Development
+
+Development requirements can be installed using the provided `requirements.txt`:
 
         $ pip install -r requirements.txt
 
