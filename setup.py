@@ -19,7 +19,7 @@ setup(
     name='osc_gen',
     version='0.1.0',
     description='Generate oscilator wavetoables',
-    long_descriptions=LONG_DESCRIPTION,
+    long_description=LONG_DESCRIPTION,
     long_description_content_type='text/x-rst',
     author='Harvey Ormston',
     author_email='harveyormston@me.com',
