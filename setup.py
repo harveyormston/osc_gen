@@ -1,7 +1,13 @@
 #!/usr/bin/env python
 """ Setup osc_gen """
 
+import os
+import sys
+
 from setuptools import setup
+from setuptools.command.install import install
+
+VERSION = "0.1.1"
 
 LONG_DESCRIPTION = (
     """osc_gen is a Python library for creating and managing oscillator wavetables.
@@ -15,9 +21,24 @@ Functionality includes:
 * Saving wavetables in .h2p format for use in the u-he Zebra2 synthesiser"""
 )
 
+
+class VerifyVersionCommand(install):
+    """ Custom command to verify that the git tag matches our version """
+    description = 'verify that the git tag matches our version'
+
+    def run(self):
+        tag = os.getenv('CIRCLE_TAG')
+
+        if tag != VERSION:
+            info = "Git tag: {0} does not match the version of this app: {1}".format(
+                tag, VERSION
+            )
+            sys.exit(info)
+
+
 setup(
     name='osc_gen',
-    version='0.1.0',
+    version=VERSION,
     description='Generate oscilator wavetoables',
     long_description=LONG_DESCRIPTION,
     long_description_content_type='text/x-rst',
@@ -46,5 +67,6 @@ setup(
         "numpy>=1.11.3",
         "scipy>=0.18.1",
         "pysoundfile"],
-    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4'
+    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4',
+    cmdclass={'verify': VerifyVersionCommand}
 )
