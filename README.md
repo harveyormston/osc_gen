@@ -1,16 +1,21 @@
+# Status
+
+[![CircleCI](https://circleci.com/gh/harveyormston/osc_gen.svg?style=svg)](https://circleci.com/gh/harveyormston/osc_gen)
+
 # Table of Contents
 
 <!-- vim-markdown-toc GFM -->
+
 * [About](#about)
 * [Requirements](#requirements)
 * [Examples](#examples)
-    * [Example Setup](#example-setup)
-    * [Generate and Save a Simple Saw Wave](#generate-and-save-a-simple-saw-wave)
-    * [Morphing Between Two Waveforms](#morphing-between-two-waveforms)
-    * [Morphing Between Many Waveforms](#morphing-between-many-waveforms)
-    * [Generating Your Own Waves](#generating-your-own-waves)
-    * [Pulse-width Modulation](#pulse-width-modulation)
-    * [Processing Waveforms](#processing-waveforms)
+  * [Example Setup](#example-setup)
+  * [Generate and Save a Simple Saw Wave](#generate-and-save-a-simple-saw-wave)
+  * [Morphing Between Two Waveforms](#morphing-between-two-waveforms)
+  * [Morphing Between Many Waveforms](#morphing-between-many-waveforms)
+  * [Generating Your Own Waves](#generating-your-own-waves)
+  * [Pulse-width Modulation](#pulse-width-modulation)
+  * [Processing Waveforms](#processing-waveforms)
 * [Using Samples](#using-samples)
 
 <!-- vim-markdown-toc -->
