@@ -183,31 +183,32 @@ def quantize(inp, depth):
 def fundamental(inp, fs):
     """ Find the fundamental frequency in Hz of a given input """
 
-    h = np.hamming(len(inp))
-    w = np.fft.fft(inp * h)
-    f = np.fft.fftfreq(len(w))
-    i = np.argmax(np.abs(w))
+    window = np.hamming(len(inp))
+    sig = np.fft.fft(inp * window)
+    freqs = np.fft.fftfreq(len(sig))
+    i = np.argmax(np.abs(sig))
 
-    return abs(f[i] * fs)
+    return abs(freqs[i] * fs)
 
 
 def harmonic_series(inp):
     """ Find the harmonic series of a periodic input """
 
-    L = min(64, len(inp) // 501)
-    M = 501 * L
-    if len(inp) < M:
-        raise NotEnoughSamplesError("Got {0} samples, need at least {1}.".format(len(inp), M))
+    fft_mult = min(64, len(inp) // 501)
+    fft_len = 501 * fft_mult
+    if len(inp) < fft_len:
+        raise NotEnoughSamplesError(
+            "Got {0} samples, need at least {1}.".format(len(inp), fft_len))
 
     # produce symmetrical, windowed fft
-    hM1 = int(np.floor((M + 1) / 2))
-    hM2 = int(np.floor(M / 2))
-    x1 = inp[:M] * np.hamming(M)
-    N = 1024 * L
-    buf = np.zeros(N)
-    buf[:hM1] = x1[hM2:]
-    buf[N - hM2:] = x1[:hM2]
-    fft = np.fft.fft(buf)[:N // 2]
+    idx1 = int(np.floor((fft_len + 1) / 2))
+    idx2 = int(np.floor(fft_len / 2))
+    windowed = inp[:fft_len] * np.hamming(fft_len)
+    fft_half = 1024 * fft_mult
+    buf = np.zeros(fft_half)
+    buf[:idx1] = windowed[idx2:]
+    buf[fft_half - idx2:] = windowed[:idx2]
+    fft = np.fft.fft(buf)[:fft_half // 2]
 
     # peak amplitude assumed to be fundamental frequency
     i_fund = np.argmax(np.abs(fft))
@@ -215,17 +216,17 @@ def harmonic_series(inp):
     # get fft components from only the harmonics, harmonics are picked by
     # taking the value with the highest amplitude around each harmonic
     # frequency
-    ws = i_fund // 4
-    hs = np.array(
-        [fft[i - ws:i + ws][np.abs(fft[i - ws:i + ws]).argmax()]
-         for i in range(i_fund, N // 2, i_fund)])
+    start = i_fund // 4
+    harmonics = np.array(
+        [fft[i - start:i + start][np.abs(fft[i - start:i + start]).argmax()]
+         for i in range(i_fund, fft_half // 2, i_fund)])
 
     # normalize magnitude and phase
-    hs_amp = np.abs(hs)
-    hs_ang = np.angle(hs)
-    hs = hs_amp * np.exp(1j * (hs_ang - hs_ang[0])) / hs_amp[0]
+    hs_amp = np.abs(harmonics)
+    hs_ang = np.angle(harmonics)
+    harmonics = hs_amp * np.exp(1j * (hs_ang - hs_ang[0])) / hs_amp[0]
 
-    return hs
+    return harmonics
 
 
 def slice_cycles(inp, n, fs):
@@ -258,22 +259,22 @@ def resynthesize(inp, sig_gen):
     @param sig_gen SigGen : SigGen to use for regenerating the signal.
     """
 
-    sg = deepcopy(sig_gen)
+    sine_gen = deepcopy(sig_gen)
     max_harmonic = sig_gen.num_points // 2
-    hs = harmonic_series(inp)
-    s = np.zeros(sg.num_points)
+    harmonics = harmonic_series(inp)
+    outp = np.zeros(sine_gen.num_points)
 
-    for i, h in enumerate(hs):
+    for i, harmonic in enumerate(harmonics):
 
-        sg.harmonic = i
-        sg.amp = np.abs(h)
-        sg.phase = np.angle(h)
+        sine_gen.harmonic = i
+        sine_gen.amp = np.abs(harmonic)
+        sine_gen.phase = np.angle(harmonic)
 
-        s += sg.sin()
+        outp += sine_gen.sin()
 
         if i >= max_harmonic:
             break
 
-    normalize(s)
+    normalize(outp)
 
-    return s
+    return outp
