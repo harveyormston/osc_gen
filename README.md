@@ -123,7 +123,7 @@ wt.waves = [sg.arb(random_wave)]
 zosc.write_wavetable('osc_gen_random.h2p')
 ```
 
-The custom signal generator function automatically normaises and scales any
+The custom signal generator function automatically normalises and scales any
 data you throw at it to the right ranges, which is useful.
 
 ## Pulse-width Modulation
