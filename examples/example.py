@@ -12,7 +12,7 @@
 import os
 
 import numpy as np
-from osc_gen import visualise
+from osc_gen import visualize
 from osc_gen import wavetable
 from osc_gen import wavfile
 from osc_gen import zosc
@@ -45,7 +45,7 @@ def render(zwt, name):
         fname = name + '.wav'
         wavfile.write_wavetable(zwt, os.path.join(osc_path, fname))
     if SHOW_PLOTS:
-        visualise.plot_wavetable(zwt, title=name)
+        visualize.plot_wavetable(zwt, title=name)
 
 
 def main():
