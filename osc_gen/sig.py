@@ -18,7 +18,8 @@ class SigGen(object):
         self.harmonic = harmonic
         self.phase = 0
 
-    def __base(self):
+    @property
+    def _base(self):
         """ Generate the base waveform cycle, a sawtooth or ramp from -1 to 1
         """
 
@@ -40,12 +41,12 @@ class SigGen(object):
     def saw(self):
         """ Generate a sawtooth wave cycle """
 
-        return self.amp * self.__base()
+        return self.amp * self._base
 
     def tri(self):
         """ Generate a triangle wave cycle """
 
-        return self.amp * (np.abs(self.__base()) * -2 + 1)
+        return self.amp * (np.abs(self._base) * -2 + 1)
 
     def pls(self, width):
         """ Generate a pulse wave cycle
@@ -54,11 +55,11 @@ class SigGen(object):
                 where 0 corresponds to a square wave.
         """
 
-        p = self.__base()
-        p[np.where(p < width)[0]] = -1.
-        p[np.where(p >= width)[0]] = 1.
+        pls = self._base
+        pls[np.where(pls < width)[0]] = -1.
+        pls[np.where(pls >= width)[0]] = 1.
 
-        return self.amp * p
+        return self.amp * pls
 
     def sqr(self):
         """ Generate a square wave cycle """
@@ -68,7 +69,7 @@ class SigGen(object):
     def sin(self):
         """ Generate a sine wave cycle """
 
-        return self.amp * np.sin(np.pi * (self.__base() + 0.5))
+        return self.amp * np.sin(np.pi * (self._base + 0.5))
 
     def arb(self, data):
         """ Generate an arbitrary wave cycle. The provided data will be
@@ -112,14 +113,14 @@ def morph(waves, new_num):
         raise ValueError(msg.format(inp_num))
 
     if inp_num == 2:
-        return __morph_two(inp[0], inp[1], new_num)
+        return _morph_two(inp[0], inp[1], new_num)
 
-    ranges = __detrmine_morph_ranges(inp_num, new_num)
+    ranges = _detrmine_morph_ranges(inp_num, new_num)
 
-    return __morph_many(inp, ranges)
+    return _morph_many(inp, ranges)
 
 
-def __detrmine_morph_ranges(inp_num, new_num):
+def _detrmine_morph_ranges(inp_num, new_num):
     """ Find a set of integer gaps sizes between two set sizes
 
         @param inp_num int : The original set size
@@ -128,7 +129,7 @@ def __detrmine_morph_ranges(inp_num, new_num):
 
     gap_num = inp_num - 1
     gap_val = int(round(float(new_num) / gap_num, 0))
-    ranges = [gap_val if j is 0 else gap_val + 1 for j in range(gap_num)]
+    ranges = [gap_val if j == 0 else gap_val + 1 for j in range(gap_num)]
     k = -1
     while sum(ranges) < new_num + gap_num - 1:
         ranges[k] += 1
@@ -140,7 +141,7 @@ def __detrmine_morph_ranges(inp_num, new_num):
     return ranges
 
 
-def __morph_many(waves, gaps):
+def _morph_many(waves, gaps):
     """ Morph between more then two sequences
 
         @param waves sequence : A sequence of wave cycles
@@ -152,13 +153,13 @@ def __morph_many(waves, gaps):
     i = 0
     for curr_wave in waves:
         if prev_wave is not None:
-            if i is 0:
-                start = 0
-            else:
+            if i:
                 start = 1
+            else:
+                start = 0
 
             morphed.extend(
-                [x for x in __morph_two(
+                [x for x in _morph_two(
                     prev_wave, curr_wave, gaps[i])][start:])
             i += 1
 
@@ -167,7 +168,7 @@ def __morph_many(waves, gaps):
     return morphed
 
 
-def __morph_two(wave_one, wave_two, new_num):
+def _morph_two(wave_one, wave_two, new_num):
     """ Morph between two wave cycles.
 
         @param a sequence : The first wave cycle
