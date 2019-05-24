@@ -28,8 +28,8 @@ def _ibytes_to_float(vals):
     num = int(num / 4)
     afloats = struct.unpack('<{0}h'.format(num), vals)
     afloats = np.array(afloats).astype(float)
-    afloats /= 32768.
-    return afloats.astype(float)
+    afloats /= 32768.0
+    return afloats
 
 
 def _read_using_wave(filename):
@@ -70,8 +70,8 @@ def read(filename, with_sample_rate=False):
 
     if with_sample_rate:
         return data, fs
-    else:
-        return data
+
+    return data
 
 
 def write(data, filename, samplerate=44100):
