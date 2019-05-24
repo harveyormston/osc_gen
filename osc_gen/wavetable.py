@@ -40,13 +40,13 @@ class WaveTable(object):
 
         @param index int : The slot index to get the wave from
 
-        @returns np.ndarray : Wavefore at given index
+        @returns np.ndarray : Wave at given index
         """
 
         if index >= len(self.waves):
             return np.zeros(self.wave_len)
-        else:
-            return self.waves[index]
+
+        return self.waves[index]
 
     def get_waves(self):
         """ Get all of the waves in the table """
@@ -70,7 +70,7 @@ class WaveTable(object):
         settings as this one
         """
 
-        a, fs = wavfile.read(filename, with_sample_rate=True)
+        data, fs = wavfile.read(filename, with_sample_rate=True)
 
         if sig_gen is None:
             sig_gen = sig.SigGen()
@@ -79,22 +79,22 @@ class WaveTable(object):
 
             num_sections = self.num_waves
 
-            while 1:
-                a = a[:len(a) - (len(a) % num_sections)]
-                sections = np.split(a, num_sections)
+            while True:
+                data = data[:data.size - (data.size % num_sections)]
+                sections = np.split(data, num_sections)
                 try:
                     self.waves = [dsp.resynthesize(s, sig_gen) for s in sections]
                     break
-                except dsp.NotEnoughSamplesError as e:
+                except dsp.NotEnoughSamplesError as exc:
                     num_sections -= 1
                     if num_sections <= 0:
-                        raise e
+                        raise exc
 
             if num_sections < self.num_waves:
                 self.waves = sig.morph(self.waves, self.num_waves)
 
         else:
-            cycles = dsp.slice_cycles(a, self.num_waves, fs)
+            cycles = dsp.slice_cycles(data, self.num_waves, fs)
             self.waves = [sig_gen.arb(c) for c in cycles]
 
         return self
