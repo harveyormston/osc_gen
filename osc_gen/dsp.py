@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 """ Process waveforms """
 
+from __future__ import division
+
 import math
 from copy import deepcopy
 
@@ -9,7 +11,6 @@ import numpy as np
 
 class NotEnoughSamplesError(Exception):
     """ Not Enough Samples """
-    pass
 
 
 def normalize(inp):
@@ -18,11 +19,12 @@ def normalize(inp):
         @param inp seq : A sequence of samples
     """
 
-    inp -= (np.amax(inp) + np.amin(inp)) / 2
+    dc_bias = (np.amax(inp) + np.amin(inp)) / 2
+    inp -= dc_bias
     amp = np.amax(np.absolute(inp))
 
     if amp > 0:
-        inp /= np.amax(abs(inp))
+        inp /= amp
 
     return inp
 
@@ -58,9 +60,6 @@ def tube(inp, amount, bias=0):
     for i, val in enumerate(inp):
         inp[i] = math.exp(-np.logaddexp(0, -val))
 
-    inp *= 2
-    inp -= 1
-
     return normalize(inp)
 
 
@@ -75,7 +74,7 @@ def fold(inp, amount, bias=0):
     gain = 1 + amount
     inp += bias
     inp *= gain
-    while (max(abs(inp))) > 1:
+    while (np.amax(np.abs(inp))) > 1:
         for i, val in enumerate(inp):
             if val > 1:
                 inp[i] = 2 - val
@@ -151,13 +150,13 @@ def downsample(inp, factor):
 
     if factor == 1:
         return inp
-    else:
-        # the aliasing is deliberate!
-        for i, val in enumerate(inp):
-            if i % factor == 0:
-                last = val
-            else:
-                inp[i] = last
+
+    # the aliasing is deliberate!
+    for i, val in enumerate(inp):
+        if i % factor == 0:
+            last = val
+        else:
+            inp[i] = last
 
     return normalize(inp)
 
@@ -183,20 +182,20 @@ def quantize(inp, depth):
 def fundamental(inp, fs):
     """ Find the fundamental frequency in Hz of a given input """
 
-    window = np.hamming(len(inp))
+    window = np.hamming(inp.size)
     sig = np.fft.fft(inp * window)
-    freqs = np.fft.fftfreq(len(sig))
+    freqs = np.fft.fftfreq(sig.size)
     i = np.argmax(np.abs(sig))
 
-    return abs(freqs[i] * fs)
+    return np.abs(freqs[i] * fs)
 
 
 def harmonic_series(inp):
     """ Find the harmonic series of a periodic input """
 
-    fft_mult = min(64, len(inp) // 501)
+    fft_mult = min(64, inp.size // 501)
     fft_len = 501 * fft_mult
-    if len(inp) < fft_len:
+    if inp.size < fft_len:
         raise NotEnoughSamplesError(
             "Got {0} samples, need at least {1}.".format(len(inp), fft_len))
 
@@ -238,7 +237,7 @@ def slice_cycles(inp, n, fs):
 
     zero_crossings = np.where(np.diff(np.sign(inp)) > 0)[0] + 1
 
-    if len(zero_crossings) < 1:
+    if not zero_crossings.size:
         raise ValueError("No zero crossings found.")
 
     freq = fundamental(inp, fs)
@@ -275,6 +274,4 @@ def resynthesize(inp, sig_gen):
         if i >= max_harmonic:
             break
 
-    normalize(outp)
-
-    return outp
+    return normalize(outp)
