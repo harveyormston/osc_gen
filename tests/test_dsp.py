@@ -1,5 +1,7 @@
 """ unit tests for dsp module """
 
+from __future__ import division
+
 import numpy as np
 
 from osc_gen import dsp
