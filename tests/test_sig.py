@@ -32,14 +32,14 @@ def test_saw_three(fxsg):  # pylint: disable=redefined-outer-name
     assert saw[2] == 1
 
 
-def test_tri_three(fxsg):  # pylint: disable=redefined-outer-name
-    """ test tri wave length three """
+def test_tri_long(fxsg):  # pylint: disable=redefined-outer-name
+    """ test tri wave """
 
-    fxsg.num_points = 3
+    fxsg.num_points = 1 << 16
     tri = fxsg.tri()
     assert tri[0] == -1
-    assert tri[1] == 1
-    assert tri[2] == -1
+    assert tri[fxsg.num_points // 2] == 1
+    assert abs(tri[-1] + 1) < 0.01
 
 
 def test_sqr_three(fxsg):  # pylint: disable=redefined-outer-name
@@ -52,14 +52,14 @@ def test_sqr_three(fxsg):  # pylint: disable=redefined-outer-name
     assert sqr[2] == 1
 
 
-def test_sin_three(fxsg):  # pylint: disable=redefined-outer-name
-    """ test sin wave length three """
+def test_sin_long(fxsg):  # pylint: disable=redefined-outer-name
+    """ test sin wave """
 
-    fxsg.num_points = 3
+    fxsg.num_points = 1 << 16
     sin = fxsg.sin()
     assert sin[0] == -1
-    assert sin[1] == 1
-    assert sin[2] == -1
+    assert sin[fxsg.num_points // 2] == 1
+    assert abs(sin[-1] + 1) < 0.01
 
 
 def test_pls_width(fxsg):  # pylint: disable=redefined-outer-name
