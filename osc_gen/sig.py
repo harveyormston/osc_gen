@@ -81,6 +81,12 @@ class SigGen(object):
             of a wave
         """
 
+        try:
+            dtype = type(data)
+            data = np.array(list(data)).astype(np.float32)
+        except ValueError:
+            raise ValueError("Expected a sequence of data, got type {}.".format(dtype))
+
         interp_y = data
         num = interp_y.size
         interp_x = np.linspace(0, num, num=num)
