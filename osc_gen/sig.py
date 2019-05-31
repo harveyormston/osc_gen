@@ -26,7 +26,7 @@ class SigGen(object):
         repeats = self.harmonic + 1
         normalized_phase = self.phase / (2 * np.pi)
         start = normalized_phase
-        stop = start + (repeats * (1 - 1 / self.num_points))
+        stop = start + repeats
 
         wave = np.linspace(start, stop, num=self.num_points, dtype=np.float32)
 
@@ -46,7 +46,7 @@ class SigGen(object):
     def tri(self):
         """ Generate a triangle wave cycle """
 
-        return self.amp * (np.abs(self._base) * -2 + 1)
+        return self.amp * self.arb((np.abs(self._base[:-1]) * -2 + 1))
 
     def pls(self, width):
         """ Generate a pulse wave cycle
@@ -69,7 +69,7 @@ class SigGen(object):
     def sin(self):
         """ Generate a sine wave cycle """
 
-        return self.amp * np.sin(np.pi * (self._base + 0.5))
+        return self.amp * self.arb(np.sin(np.pi * (self._base[:-1] + 0.5)))
 
     def arb(self, data):
         """ Generate an arbitrary wave cycle. The provided data will be
