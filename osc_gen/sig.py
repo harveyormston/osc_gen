@@ -26,7 +26,7 @@ class SigGen(object):
         repeats = self.harmonic + 1
         normalized_phase = self.phase / (2 * np.pi)
         start = normalized_phase
-        stop = start + repeats
+        stop = start + (repeats * (1 - 1 / self.num_points))
 
         wave = np.linspace(start, stop, num=self.num_points, dtype=np.float32)
 
