@@ -15,11 +15,12 @@ def plot_wave(wave):
 def plot_wavetable(wavetable, title=''):
     """ Plot all waves in a wavetable """
 
-    plt.figure(num=None, figsize=(2, 6), dpi=80, facecolor='w', edgecolor='k')
+    _, axs = plt.subplots(wavetable.num_waves, 1, sharex=True)
+
+    axs[0].set_title(title)
 
     for i, wave in enumerate(wavetable.waves):
-        plt.plot(wave + (i * 2.01))
+        axs[i].plot(wave)
 
-    plt.title(title)
     plt.show()
     plt.gcf().clear()
