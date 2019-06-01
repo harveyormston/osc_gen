@@ -34,7 +34,7 @@ class SigGen(object):
         wrap_threshold = np.finfo(np.float32).eps
         wave %= 1 + wrap_threshold
         wave *= 2
-        wave -= 1
+        wave[wave > 1] -= 2
 
         return wave
 
@@ -46,7 +46,10 @@ class SigGen(object):
     def tri(self):
         """ Generate a triangle wave cycle """
 
-        return self.amp * self.arb((np.abs(self._base[:-1]) * -2 + 1))
+        # shift to start at 0
+        shift = -self.num_points // (4 * (self.harmonic + 1))
+
+        return np.roll(self.amp * self.arb((np.abs(self._base[:-1]))), shift)
 
     def pls(self, width):
         """ Generate a pulse wave cycle
@@ -69,7 +72,7 @@ class SigGen(object):
     def sin(self):
         """ Generate a sine wave cycle """
 
-        return self.amp * self.arb(np.sin(np.pi * (self._base[:-1] + 0.5)))
+        return self.amp * self.arb(np.sin(np.pi * self._base[:-1]))
 
     def arb(self, data):
         """ Generate an arbitrary wave cycle. The provided data will be
