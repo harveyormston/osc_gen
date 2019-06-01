@@ -179,8 +179,8 @@ def test_slice_cycles():
 
 def test_resynthesize():
     """ test resynthesize """
-    a = np.sin(128 * np.pi * np.linspace(-0.25, 0.75, 2048))
-    e = np.sin(2 * np.pi * np.linspace(-0.25, 0.75 - (1 / 32), 32))
+    a = np.sin(128 * np.pi * np.linspace(0, 1, 2048))
+    e = np.sin(2 * np.pi * np.linspace(0, 1 - (1 / 32), 32))
     s = sig.SigGen()
     s.num_points = 32
     o = dsp.resynthesize(a, s)
