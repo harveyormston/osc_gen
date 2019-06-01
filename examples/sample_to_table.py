@@ -7,20 +7,12 @@ from osc_gen import wavetable
 from osc_gen import zosc
 
 if len(sys.argv) < 2:
-    print("Usage: {0} WAV_FILE_PREFIX".format(sys.argv[0]))
-    print("e.g., to convert sine.wav: {0} sine".format(sys.argv[0]))
+    print("Usage: {0} WAV_FILE".format(sys.argv[0]))
     exit()
 
-lib_path = os.path.join(
-    os.path.expanduser("~"),
-    "Library",
-    "Application Support",
-    "u-he",
-    "Zebra2",
-    "Modules",
-    "Oscillator")
+lib_path = '.'
 
-name = sys.argv[1]
+name = os.path.splitext(sys.argv[1])[0]
 
 # resynthesize
 wt = wavetable.WaveTable().from_wav('{0}.wav'.format(name), resynthesize=True)
