@@ -24,26 +24,30 @@ import sys
 
 from osc_gen import wavetable
 from osc_gen import zosc
+from osc_gen import sig
 
 def main():
     """ convert wav file to wavetable using slicing and resynthesis """
 
-    if len(sys.argv) < 2:
-        print("Usage: {0} WAV_FILE".format(sys.argv[0]))
+    if len(sys.argv) < 3:
+        print("Usage: {0} WAV_FILE CYCLES".format(sys.argv[0]))
         exit()
 
     lib_path = '.'
 
     name = os.path.splitext(sys.argv[1])[0]
+    sig_gen = sig.SigGen(num_points=int(sys.argv[2]))
 
     # resynthesize
-    wt = wavetable.WaveTable().from_wav('{0}.wav'.format(name), resynthesize=True)
+    wt = wavetable.WaveTable()
+    wt.from_wav('{0}.wav'.format(name), sig_gen=sig_gen, resynthesize=True)
     out = os.path.join(lib_path, '{0}_resynth.h2p'.format(name))
     print("write {}".format(out))
     zosc.write_wavetable(wt, out)
 
     # slice
-    wt = wavetable.WaveTable().from_wav('{0}.wav'.format(name))
+    wt = wavetable.WaveTable()
+    wt.from_wav('{0}.wav'.format(name), sig_gen=sig_gen)
     out = os.path.join(lib_path, '{0}_slice.h2p'.format(name))
     print("write {}".format(out))
     zosc.write_wavetable(wt, out)

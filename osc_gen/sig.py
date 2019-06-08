@@ -26,14 +26,13 @@ from osc_gen import dsp
 class SigGen(object):
     """ Signal Generator """
 
-    def __init__(self, harmonic=0):
+    def __init__(self, num_points=128, amp=1.0, phase=0, harmonic=0):
         """ Init """
 
-        self.num_points = 128
-        self.amp = 1.0
-        self.offset = 0.0
+        self.num_points = num_points
+        self.amp = amp
         self.harmonic = harmonic
-        self.phase = 0
+        self.phase = phase
 
     @property
     def _base(self):

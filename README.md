@@ -194,3 +194,11 @@ wt = wavetable.WaveTable().from_wav('mywavefile.wav', resynthesize=True)
 # slice
 wt = wavetable.WaveTable().from_wav('mywavefile.wav', resynthesize=False)
 ```
+
+To extract a specific number of samples in each cycle, create a `SigGen` object and pass that into `from_wav()` e.g.:
+
+
+```python
+sg = SigGen(num_points=2048)
+wt = wavetable.WaveTable().from_wav('mywavefile.wav', sig_gen=sg, resynthesize=True)
+```
