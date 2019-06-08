@@ -115,3 +115,18 @@ class WaveTable(object):
             self.waves = [sig_gen.arb(c) for c in cycles]
 
         return self
+
+    def morph_with(self, other):
+        """ Morph waves with contents of another wavetable """
+
+        waves = [None for _ in range(self.num_waves)]
+
+        for i in range(self.num_waves):
+            wav_a = self.get_wave_at_index(i)
+            wav_b = other.get_wave_at_index(i)
+            # interpolate wav_b to the same length as a
+            if len(wav_a) != len(wav_b):
+                wav_b = sig.SigGen(num_points=len(wav_a)).arb(wav_b)
+            waves[i] = sig.morph([wav_a, wav_b], 3)[1]
+
+        return WaveTable(waves)

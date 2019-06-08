@@ -104,6 +104,11 @@ zosc.write_wavetable('osc_gen_sin_tri5.h2p')
 # Morph between sine, triangle, saw and square over 16 slots:
 wt.waves = sig.morph((sg.sin(), sg.tri(), sg.saw(), sg.sqr()), 16)
 zosc.write_wavetable('osc_gen_sin_tri_saw_sqr.h2p')
+
+# Morph between two wavetables using the morph_with() method
+wt_1 = WaveTable([sg.sin() for _ in range(16)])
+wt_2 = WaveTable([sg.pls(i / 16) for i in range(16)])
+wt_m = wt_1.morph_with(wt_2)
 ```
 
 ## Generating Your Own Waves
