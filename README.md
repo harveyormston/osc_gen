@@ -67,7 +67,7 @@ import dsp
 sg = sig.SigGen()
 
 # Create a wave table with 16 slots to store the waves.
-wt = wavetable.WaveTable(num_waves=16)
+wt = wavetable.WaveTable(16)
 
 # Generate a sine wave using our signal generator and store it in a new Wave object.
 m = sg.sin()
@@ -106,8 +106,8 @@ wt.waves = sig.morph((sg.sin(), sg.tri(), sg.saw(), sg.sqr()), 16)
 zosc.write_wavetable('osc_gen_sin_tri_saw_sqr.h2p')
 
 # Morph between two wavetables using the morph_with() method
-wt_1 = WaveTable([sg.sin() for _ in range(16)])
-wt_2 = WaveTable([sg.pls(i / 16) for i in range(16)])
+wt_1 = WaveTable(16, waves=[sg.sin() for _ in range(16)])
+wt_2 = WaveTable(16, waves=[sg.pls(i / 16) for i in range(16)])
 wt_m = wt_1.morph_with(wt_2)
 ```
 
@@ -194,16 +194,26 @@ audio.
 
 ```python
 # resynthesize
-wt = wavetable.WaveTable().from_wav('mywavefile.wav', resynthesize=True)
+wt = wavetable.WaveTable(16).from_wav('mywavefile.wav', sig_gen=sg, resynthesize=True)
 
 # slice
-wt = wavetable.WaveTable().from_wav('mywavefile.wav', resynthesize=False)
+wt = wavetable.WaveTable(16).from_wav('mywavefile.wav', sig_gen=sg, resynthesize=False)
 ```
 
-To extract a specific number of samples in each cycle, create a `SigGen` object and pass that into `from_wav()` e.g.:
+To extract a specific number of samples in each cycle, there are two options:
+
+1. Set the `wave_len` property in the `WaveTable` instance e.g.:
+
+```python
+sg = SigGen(num_points=2048)
+wt = wavetable.WaveTable(16, wave_len=2048).from_wav('mywavefile.wav', resynthesize=True)
+
+```
+
+2. create a `SigGen` object and pass that into `from_wav()` e.g.:
 
 
 ```python
 sg = SigGen(num_points=2048)
-wt = wavetable.WaveTable().from_wav('mywavefile.wav', sig_gen=sg, resynthesize=True)
+wt = wavetable.WaveTable(16).from_wav('mywavefile.wav', sig_gen=sg, resynthesize=True)
 ```

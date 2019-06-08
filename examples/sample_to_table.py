@@ -39,14 +39,14 @@ def main():
     sig_gen = sig.SigGen(num_points=int(sys.argv[2]))
 
     # resynthesize
-    wt = wavetable.WaveTable()
+    wt = wavetable.WaveTable(128)
     wt.from_wav('{0}.wav'.format(name), sig_gen=sig_gen, resynthesize=True)
     out = os.path.join(lib_path, '{0}_resynth.h2p'.format(name))
     print("write {}".format(out))
     zosc.write_wavetable(wt, out)
 
     # slice
-    wt = wavetable.WaveTable()
+    wt = wavetable.WaveTable(128)
     wt.from_wav('{0}.wav'.format(name), sig_gen=sig_gen)
     out = os.path.join(lib_path, '{0}_slice.h2p'.format(name))
     print("write {}".format(out))

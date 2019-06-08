@@ -74,7 +74,7 @@ def main():
     sig_gen = sig.SigGen()
 
     # create a wave table to store the waves
-    zwt = wavetable.WaveTable(num_waves=16)
+    zwt = wavetable.WaveTable(16)
 
     # example 1: generate and save a simple saw wave
 
@@ -180,7 +180,7 @@ def main():
     # example 7: longer wavetables, more processing and writing a wav file
 
     # wavetables can have any number of slots, this one has 120 slots
-    lwt = wavetable.WaveTable(num_waves=120)
+    lwt = wavetable.WaveTable(120)
 
     # similarly, a signal generator can generate any number of samples
     # a waveform coresponding to the frequency of C3 at 44.1 kHz would
@@ -189,14 +189,14 @@ def main():
     mc_sig_gen.num_points = 337
 
     # create ever-decreasing wave folding distortion over the wavetable
-    lwt.waves = [dsp.fold(mc_sig_gen.sin(), (lwt.num_waves - i) / 50.)
-                 for i in range(lwt.num_waves)]
+    lwt.waves = [dsp.fold(mc_sig_gen.sin(), (lwt.num_slots - i) / 50.)
+                 for i in range(lwt.num_slots)]
 
     wavfile.write_wavetable(lwt, os.path.join(make_osc_path(), 'folding.wav'))
 
     # create ever-increasing wave shaping distortion over the wavetable
     lwt.waves = [dsp.shape(mc_sig_gen.sin(), power=i + 1)
-                 for i in range(lwt.num_waves)]
+                 for i in range(lwt.num_slots)]
 
     wavfile.write_wavetable(lwt, os.path.join(make_osc_path(), 'shaping.wav'))
 

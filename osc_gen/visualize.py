@@ -19,6 +19,7 @@ This file is part of osc_gen.
 """
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def plot_wave(wave):
@@ -29,15 +30,25 @@ def plot_wave(wave):
     plt.gcf().clear()
 
 
-def plot_wavetable(wavetable, title=''):
+def plot_wavetable(wavetable, subplots=True, title=''):
     """ Plot all waves in a wavetable """
 
-    _, axs = plt.subplots(wavetable.num_waves, 1, sharex=True)
+    cmap = plt.get_cmap("winter")
+    colors = [cmap(i) for i in np.linspace(0, 1, wavetable.num_slots)]
 
-    axs[0].set_title(title)
+    if subplots:
+        _, axs = plt.subplots(wavetable.num_slots, 1, sharex=True)
+        axs[0].set_title(title)
+        for i, wave in enumerate(wavetable.waves):
+            axs[i].plot(wave, color=colors[i])
+            axs[i].set_ylabel("slot {}".format(i), rotation=0)
+            axs[i].grid(True)
+    else:
+        plt.title(title)
+        for i, wave in enumerate(wavetable.waves):
+            plt.plot(wave, color=colors[i], label="slot {}".format(i))
+        plt.legend()
 
-    for i, wave in enumerate(wavetable.waves):
-        axs[i].plot(wave)
-
+    plt.grid(True)
     plt.show()
     plt.gcf().clear()

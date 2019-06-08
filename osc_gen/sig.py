@@ -102,9 +102,13 @@ class SigGen(object):
 
         try:
             dtype = type(data)
-            data = np.array(list(data)).astype(np.float32)
+            if not isinstance(data, np.ndarray):
+                data = np.array(list(data)).astype(np.float32)
         except ValueError:
             raise ValueError("Expected a sequence of data, got type {}.".format(dtype))
+
+        if data.size == self.num_points:
+            return data
 
         interp_y = data
         num = interp_y.size
