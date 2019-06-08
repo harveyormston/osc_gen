@@ -205,7 +205,6 @@ To extract a specific number of samples in each cycle, there are two options:
 1. Set the `wave_len` property in the `WaveTable` instance e.g.:
 
 ```python
-sg = SigGen(num_points=2048)
 wt = wavetable.WaveTable(16, wave_len=2048).from_wav('mywavefile.wav', resynthesize=True)
 
 ```
