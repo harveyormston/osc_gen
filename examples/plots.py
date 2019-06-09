@@ -18,6 +18,8 @@ This file is part of osc_gen.
     along with osc_gen.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+import os
+import numpy as np
 from osc_gen import wavetable, dsp, sig, visualize
 
 
@@ -26,34 +28,22 @@ def main():
 
     sgen = sig.SigGen()
 
-    waves = [dsp.tube(sgen.sin(), x) for x in range(1, 17)]
-    wtab = wavetable.WaveTable(waves)
-    visualize.plot_wavetable(wtab, title='tube')
+    wave_sets = [
+        [dsp.clip(sgen.sin(), x / 10) for x in range(16)],
+        [dsp.tube(sgen.sin(), x) for x in range(1, 17)],
+        [dsp.fold(sgen.sin(), x / 10) for x in range(16)],
+        [dsp.shape(sgen.sin(), 1.0, power=x) for x in range(1, 17)],
+        [dsp.slew(sgen.pls(x), x) for x in np.linspace(-0.5, 0.5, 16)],
+        [dsp.downsample(sgen.sin(), x + 1) for x in range(8)],
+        [dsp.quantize(sgen.sin(), (4 - x) * 2) for x in range(4)]
+    ]
 
-    waves = [dsp.clip(sgen.sin(), x) for x in range(1, 17)]
-    wtab = wavetable.WaveTable(waves)
-    visualize.plot_wavetable(wtab, title='clip')
+    titles = ('clip', 'tube', 'fold', 'shape', 'slew', 'downsample', 'quantize')
 
-    waves = [dsp.fold(sgen.sin(), x) for x in range(1, 17)]
-    wtab = wavetable.WaveTable(waves)
-    visualize.plot_wavetable(wtab, title='fold')
-
-    waves = [dsp.shape(sgen.sin(), x) for x in range(1, 17)]
-    wtab = wavetable.WaveTable(waves)
-    visualize.plot_wavetable(wtab, title='shape')
-
-    waves = [dsp.slew(sgen.sqr(), 1 / x) for x in range(1, 9)]
-    waves += [dsp.slew(sgen.sqr(), 1 / x) for x in range(-8, 0)]
-    wtab = wavetable.WaveTable(waves)
-    visualize.plot_wavetable(wtab, title='slew')
-
-    waves = [dsp.downsample(sgen.sin(), x) for x in range(1, 17)]
-    wtab = wavetable.WaveTable(waves)
-    visualize.plot_wavetable(wtab, title='downsample')
-
-    waves = [dsp.quantize(sgen.sin(), x) for x in range(1, 17)]
-    wtab = wavetable.WaveTable(waves)
-    visualize.plot_wavetable(wtab, title='quantize')
+    for waves, title in zip(wave_sets, titles):
+        wtab = wavetable.WaveTable(len(waves), waves)
+        save = os.path.join('examples', 'images', "{}.png".format(title))
+        visualize.plot_wavetable(wtab, title=title, save=save)
 
 
 if __name__ == '__main__':

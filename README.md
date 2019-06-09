@@ -152,27 +152,72 @@ zosc.write_wavetable('osc_gen_pwm.h2p')
 
 The dsp module can be used to process waves in various ways.
 
+These examples use the plotting functions in the visualize module to plot the resulting processed wavetable.
+
 ```python
-# Let's try downsampling a sine to produce aliasing distortion
-ds = dsp.downsample(sg.sin(), 16)
-
-# That downsampled sine from probably sounds pretty edgy.
-# Let's try that again with some slew this time, to smooth it out a bit:
-sw = dsp.slew(dsp.downsample(sg.sin(), 16), 0.8)
-
-# Generate a triangle wave and quantize (bit crush) it.
-qt = dsp.quantize(sg.tri(), 3)
-
-# Apply inverse slew, or overshoot, to a square wave.
-ss = dsp.slew(sg.sqr(), 0.8, inv=True)
-
-# Overshoot might make the wave quieter, so let's normalize it.
-dsp.normalize(ss)
-
-# Morph between the waves over 16 slots and write out to a file
-wt.waves = sig.morph((ds, sw, qt, ss), 16)
-zosc.write_wavetable('osc_gen_dsp.h2p')
+# clip() applies hard clipping
+waves = [dsp.clip(sgen.sin(), x / 10) for x in range(16)]
+wtab = wavetable.WaveTable(16, waves)
+visualize.plot_wavetable(wtab)
 ```
+
+![](https://raw.githubusercontent.com/harveyormston/osc_gen/master/examples/images/clip.png)
+
+```python
+# tube() applies tube saturation
+waves = [dsp.tube(sgen.sin(), x) for x in range(1, 17)]
+wtab = wavetable.WaveTable(16, waves)
+visualize.plot_wavetable(wtab)
+```
+
+![](https://raw.githubusercontent.com/harveyormston/osc_gen/master/examples/images/tube.png)
+
+```python
+# fold() applies wave folding
+waves = [dsp.fold(sgen.sin(), x / 10) for x in range(16)]
+wtab = wavetable.WaveTable(16, waves)
+visualize.plot_wavetable(wtab)
+```
+
+![](https://raw.githubusercontent.com/harveyormston/osc_gen/master/examples/images/fold.png)
+
+```python
+# shape applies polynomial wave-shaping
+waves = [dsp.shape(sgen.sin(), 1.0, power=x) for x in range(1, 17)]
+wtab = wavetable.WaveTable(16, waves)
+visualize.plot_wavetable(wtab)
+```
+
+![](https://raw.githubusercontent.com/harveyormston/osc_gen/master/examples/images/shape.png)
+
+```python
+# slew() smooths or sharpens the gradient of a waveform
+from numpy import linspace
+waves = [dsp.slew(sgen.pls(x), x) for x in linspace(-0.5, 0.5, 16)]
+wtab = wavetable.WaveTable(16, waves)
+visualize.plot_wavetable(wtab)
+```
+
+![](https://raw.githubusercontent.com/harveyormston/osc_gen/master/examples/images/slew.png)
+
+```python
+# downsample() lowers the sample-rate for aliasing effects
+waves = [dsp.downsample(sgen.sin(), x + 1) for x in range(8)]
+wtab = wavetable.WaveTable(8, waves)
+visualize.plot_wavetable(wtab)
+```
+
+![](https://raw.githubusercontent.com/harveyormston/osc_gen/master/examples/images/downsample.png)
+
+```python
+# quantize() lowers the bit-depth for bit-crushing effects
+waves = [dsp.quantize(sgen.sin(), (4 - x) * 2) for x in range(4)]
+wtab = wavetable.WaveTable(4, waves)
+visualize.plot_wavetable(wtab)
+```
+
+![](https://raw.githubusercontent.com/harveyormston/osc_gen/master/examples/images/quantize.png)
+
 
 # Using Samples
 
