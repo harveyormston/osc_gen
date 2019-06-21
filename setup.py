@@ -24,7 +24,7 @@ import sys
 from setuptools import setup
 from setuptools.command.install import install
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 
 LONG_DESCRIPTION = (
     """osc_gen is a Python library for creating and managing oscillator wavetables.
