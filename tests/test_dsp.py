@@ -139,7 +139,6 @@ def test_slew():
     a = np.ones(100)
     a[:50] *= -1
     o = dsp.slew(a, 0.1)
-    assert np.all(o[:8] == -o[50:58])
     assert o[0] > o[1]
 
 
