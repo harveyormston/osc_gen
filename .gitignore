@@ -93,5 +93,6 @@ ENV/
 # Rope project settings
 .ropeproject
 
-# wav files
+# wav/ableton files
 *.wav
+*.asd
