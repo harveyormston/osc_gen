@@ -39,7 +39,7 @@ from osc_gen import sig
 from osc_gen import dsp
 
 STORE_FILES = True
-SHOW_PLOTS = False
+SHOW_PLOTS = True
 
 
 def make_osc_path():
@@ -150,7 +150,17 @@ def main():
 
     render(zwt, 'osc_gen_pwm')
 
-    # example 6: processing wave forms
+    # example 6: other wave shapes
+    # Other wave shapes are supported by the SigGen class, including:
+    # - Shark Fin
+    # - Exponential Saw
+    # - Square Saw
+
+    zwt.waves = [sig_gen.sharkfin(), sig_gen.exp_saw(), sig_gen.sqr_saw()]
+
+    render(zwt, 'shark_exp_sqrsaw')
+
+    # example 7: processing wave forms
     # the dsp module can be used to process waves in various ways
 
     # let's try downsampling a sine
@@ -177,7 +187,7 @@ def main():
 
     render(zwt, 'osc_gen_dsp')
 
-    # example 7: longer wavetables, more processing and writing a wav file
+    # example 8: longer wavetables, more processing and writing a wav file
 
     # wavetables can have any number of slots, this one has 120 slots
     lwt = wavetable.WaveTable(120)

@@ -14,6 +14,7 @@
   * [Morphing Between Waveforms](#morphing-between-waveforms)
   * [Generating Your Own Waves](#generating-your-own-waves)
   * [Pulse-width Modulation](#pulse-width-modulation)
+  * [Other Wave Shapes](#other-wave-shapes)
   * [Processing Waveforms](#processing-waveforms)
 * [Using Samples](#using-samples)
 
@@ -99,11 +100,11 @@ zosc.write_wavetable(wt, 'osc_gen_sin_tri.h2p')
 
 # Morph from sine to triangle over 5 slots.
 wt.waves = sig.morph((sg.sin(), sg.tri()), 5)
-zosc.write_wavetable('osc_gen_sin_tri5.h2p')
+zosc.write_wavetable(wt, 'osc_gen_sin_tri5.h2p')
 
 # Morph between sine, triangle, saw and square over 16 slots:
 wt.waves = sig.morph((sg.sin(), sg.tri(), sg.saw(), sg.sqr()), 16)
-zosc.write_wavetable('osc_gen_sin_tri_saw_sqr.h2p')
+zosc.write_wavetable(wt, 'osc_gen_sin_tri_saw_sqr.h2p')
 
 # Morph between two wavetables using the morph_with() method
 wt_1 = WaveTable(16, waves=[sg.sin() for _ in range(16)])
@@ -125,7 +126,7 @@ random_wave = (uniform(-1, 1) for _ in range(128))
 
 # Write to file.
 wt.waves = [sg.arb(random_wave)]
-zosc.write_wavetable('osc_gen_random.h2p')
+zosc.write_wavetable(wt, 'osc_gen_random.h2p')
 ```
 
 The custom signal generator function automatically normalises and scales any
@@ -145,8 +146,23 @@ duration, but also avoid any silence:
 ```python
 pulse_widths = (i / 17. for i in range(1, 17))
 wt.waves = [sg.pls(p) for p in pulse_widths]
-zosc.write_wavetable('osc_gen_pwm.h2p')
+zosc.write_wavetable(wt, 'osc_gen_pwm.h2p')
 ```
+
+## Other Wave Shapes
+
+Other wave shapes are supported by SigGen, including:
+
+* Shark Fin
+* Exponential Saw
+* Square Saw
+
+```python
+wt.waves = [sig_gen.sharkfin(), sig_gen.exp_saw(), sig_gen.sqr_saw()]
+zosc.write_wavetable(wt, 'osc_gen_other.h2p')
+```
+
+![](https://raw.githubusercontent.com/harveyormston/osc_gen/master/examples/images/fin_exp_sqrsaw.png)
 
 ## Processing Waveforms
 
