@@ -139,19 +139,24 @@ def slew(inp, rate, inv=False):
                           slew will be applied. (default=False).
     """
 
-    prev = 0.
-    # process twice in order to allow for settling
-    for num in range(2):
-        for i, val in enumerate(inp):
-            if inv:
-                curr = prev * (rate - 1.) + (val * rate)
-            else:
-                curr = val * (1. - rate) + (prev * rate)
-            prev = curr
-            if num > 0:
-                inp[i] = curr
+    if inv:
+        beta = 1 - rate
+    else:
+        beta = rate
 
-    return normalize(inp)
+    alpha = 1 - beta
+
+    # the output is the middle cycle of 3, shifted slightly to account for
+    # filter run-in
+    start = inp.size - 2
+    end = (2 * inp.size) - 2
+
+    tiled_inp = np.tile(inp, 3)
+
+    for idx, sample in enumerate(tiled_inp[1:]):
+        tiled_inp[idx] = (sample * beta) + (tiled_inp[idx - 1] * alpha)
+
+    return normalize(tiled_inp[start:end])
 
 
 def downsample(inp, factor):

@@ -90,6 +90,25 @@ class SigGen(object):
 
         return self.amp * self.arb(np.sin(np.pi * self._base[:-1]))
 
+    def sharkfin(self, amount=0.4):
+        """ Shrk Fin waveform
+            @param amount float : Shark Fin smoothing factor, between 0 and 1.
+         """
+
+        slew_rate = amount * (128 / self.num_points)
+
+        return dsp.slew(self.sqr(), slew_rate)
+
+    def exp_saw(self):
+        """ Exponential saw wave """
+
+        return dsp.normalize(np.power(self.saw(), 5))
+
+    def sqr_saw(self):
+        """ Square plus Saw wave """
+
+        return dsp.normalize(self.saw() + self.sqr())
+
     def arb(self, data):
         """ Generate an arbitrary wave cycle. The provided data will be
         interpolated, if possible, to occupy the correct number of samples for
