@@ -99,15 +99,20 @@ class SigGen(object):
 
         return dsp.slew(self.sqr(), slew_rate)
 
-    def exp_saw(self):
-        """ Exponential saw wave """
+    def exp_saw(self, amount=0):
+        """ Exponential saw wave
+            @param amount int : amount of exponential distortion
+        """
 
-        return dsp.normalize(np.power(self.saw(), 5))
+        exp = 3 + (2 * int(amount))
+        return dsp.normalize(np.power(self.saw(), exp))
 
-    def exp_sin(self):
-        """ Exponential sine wave """
+    def exp_sin(self, amount=0):
+        """ Exponential sine wave
+            @param amount int : amount of exponential distortion
+        """
 
-        return self.amp * self.arb(np.sin(np.pi * self.exp_saw()[:-1]))
+        return self.amp * self.arb(np.sin(np.pi * self.exp_saw(amount)[:-1]))
 
     def sqr_saw(self):
         """ Square plus Saw wave """
