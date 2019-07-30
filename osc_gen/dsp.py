@@ -46,6 +46,20 @@ def normalize(inp):
     return inp
 
 
+def mix(inp_a, inp_b, amount=0.5):
+    """ Mix two signals together.
+
+        @param inp_a np.ndarray : first input
+        @param inp_b np.ndarray : seconds input
+        @param amount float : mix amount, 0 outputs only inp_a, 1 outputs only
+            inp_b, values between 0 and 1 output a propotional mix of the two.
+    """
+
+    amount = np.clip(amount, 0, 1)
+
+    return normalize((inp_a * (1 - amount) + inp_b * amount))
+
+
 def clip(inp, amount, bias=0):
     """ Hard-clip a signal
 
