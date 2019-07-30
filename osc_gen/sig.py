@@ -104,10 +104,64 @@ class SigGen(object):
 
         return dsp.normalize(np.power(self.saw(), 5))
 
+    def exp_sin(self):
+        """ Exponential sine wave """
+
+        return self.amp * self.arb(np.sin(np.pi * self.exp_saw()[:-1]))
+
     def sqr_saw(self):
         """ Square plus Saw wave """
 
-        return dsp.normalize(self.saw() + self.sqr())
+        return dsp.mix(self.saw(), self.sqr())
+
+    def noise(self, seed=None, character=0.5):
+        """ Noise waveform
+            @param seed int : Random seed
+            @param character float : Noise filtering, between 0 and 1.
+
+                Values between 0.0 and 0.5 perform low-pass filtering for pink
+                noise, with low values giving a low cuoff frequency and high
+                values giving a high cutoff frequency.
+
+                Values between 0.5 and 1.0 perform high-pass filtering for blue
+                noise, with low values giving a low cuoff frequency and high
+                values giving a high cutoff frequency.
+
+                A character value of 0.5 performs no filtering.
+        """
+
+        np.random.seed(seed)
+
+        noise = np.random.uniform(-1, 1, self.num_points)
+
+        character = np.clip(character, 0, 1)
+
+        if character < 0.5:
+            # low-pass
+            beta = character * 2
+            alpha = 1 - beta
+            noise = np.tile(noise, 2)
+            for idx, val in enumerate(noise):
+                if idx == 0:
+                    noise[idx] = 0
+                else:
+                    noise[idx] = (val * beta) + (noise[idx - 1] * alpha)
+            noise = noise[self.num_points:]
+
+        elif character > 0.5:
+            # high-pass
+            alpha = (character - 0.5) * 2
+            beta = 1 - alpha
+            noise = np.tile(noise, 2)
+            dc_lev = np.empty_like(noise)
+            dc_lev[0] = noise[0] * alpha
+            for idp, val in enumerate(noise[1:]):
+                idx = idp + 1
+                dc_lev[idx] = (dc_lev[idx - 1] * beta) + (val * alpha)
+                noise[idx] -= dc_lev[idx]
+            noise = noise[self.num_points:]
+
+        return dsp.normalize(noise)
 
     def arb(self, data):
         """ Generate an arbitrary wave cycle. The provided data will be
