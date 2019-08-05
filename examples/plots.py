@@ -33,14 +33,14 @@ def main():
         [dsp.tube(sgen.sin(), x) for x in range(1, 17)],
         [dsp.fold(sgen.sin(), x / 10) for x in range(16)],
         [dsp.shape(sgen.sin(), 1.0, power=x) for x in range(1, 17)],
-        [dsp.slew(sgen.pls(x), x) for x in np.linspace(-0.5, 0.5, 16)],
-        [dsp.downsample(sgen.sin(), x + 1) for x in range(8)],
-        [dsp.quantize(sgen.sin(), (4 - x) * 2) for x in range(4)],
-        sig.morph([sgen.exp_saw(),
-                   sgen.sqr_saw(),
-                   sgen.sharkfin(0.04),
-                   sgen.sharkfin(0.4)],
-                  10),
+        [dsp.slew(sgen.sqr(), x) for x in np.linspace(0.001, 0.1, 16)],
+        [dsp.downsample(sgen.sin(), x * 4) for x in range(1, 9)],
+        [dsp.quantize(sgen.sin(), x) for x in range(9, 1, -1)],
+        [sgen.noise(0, 0.01),
+         sgen.exp_saw(),
+         sgen.exp_sin(3),
+         sgen.sqr_saw(0.75),
+         sgen.sharkfin(0.04)]
     ]
 
     titles = ('clip', 'tube', 'fold', 'shape', 'slew', 'downsample',
@@ -49,7 +49,7 @@ def main():
     for waves, title in zip(wave_sets, titles):
         wtab = wavetable.WaveTable(len(waves), waves)
         save = os.path.join('examples', 'images', "{}.png".format(title))
-        visualize.plot_wavetable(wtab, title=title, save=save, spacing=2.1)
+        visualize.plot_wavetable(wtab, title=title, save=save)
         wavfile.write_wavetable(wtab, "{}.wav".format(title))
 
 
