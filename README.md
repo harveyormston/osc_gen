@@ -132,8 +132,9 @@ wt.waves = [sg.arb(random_wave)]
 wt.to_wav('osc_gen_random.wav')
 ```
 
-The custom signal generator function automatically normalises and scales any
-data you throw at it to the right ranges, which is useful.
+The `arb()` method automatically normalises, scales and resamples any
+data you throw at it to fit it into the `SigGen`'s parameters, so the input can
+be any amplitude and any number of samples.
 
 ## Pulse-width Modulation
 
