@@ -55,11 +55,11 @@ These examples show how to:
 
 - Use the sig module to generate oscillator shapes.
 - Use the wavetable module to create a 16 slot wavetable.
-- Use the zosc module to store a wavetable as a zebra oscillator file.
+- Store a wavetable as a zebra oscillator file.
+- Store a wavetable as a wav file.
 
 ```python
 import wavetable
-import zosc
 import sig
 import dsp
 
@@ -70,7 +70,7 @@ sg = sig.SigGen()
 # Create a wave table with 16 slots to store the waves.
 wt = wavetable.WaveTable(16)
 
-# Generate a sine wave using our signal generator and store it in a new Wave object.
+# Generate a sine wave using our signal generator.
 m = sg.sin()
 
 # Put the sine wave into our wave table.
@@ -79,12 +79,15 @@ m = sg.sin()
 # be empty, because we haven't added anything to those yet.
 wt.waves = [m]
 
-# Write the resulting oscillator to a file.
-zosc.write_wavetable(wt, 'osc_gen_sine.h2p')
+# Write the resulting oscillator to a Zebra2 h2p file.
+wt.to_h2p('osc_gen_sine.h2p')
+
+# Write the resulting oscillator to a wav file.
+wt.to_wav('osc_gen_sine.wav')
 
 # To fill all 16 slots, repeat the sine wave 16 times in the wavetable.
-wt.waves = [m for _ in range(16)]
-zosc.write_wavetable(wt, 'osc_gen_saw16.h2p')
+wt.waves = [m] * 16
+wt.to_wav('osc_gen_saw16.wav')
 ```
 
 ## Morphing Between Waveforms
@@ -96,18 +99,18 @@ other and fill in the in-between slots.
 ```python
 # Morph from sine to triangle over 16 slots.
 wt.waves = sig.morph((sg.sin(), sg.tri()), 16)
-zosc.write_wavetable(wt, 'osc_gen_sin_tri.h2p')
+wt.to_wav('osc_gen_sin_tri.wav')
 
 # Morph from sine to triangle over 5 slots.
 wt.waves = sig.morph((sg.sin(), sg.tri()), 5)
-zosc.write_wavetable(wt, 'osc_gen_sin_tri5.h2p')
+wt.to_wav('osc_gen_sin_tri5.wav')
 
 # Morph between sine, triangle, saw and square over 16 slots:
 wt.waves = sig.morph((sg.sin(), sg.tri(), sg.saw(), sg.sqr()), 16)
-zosc.write_wavetable(wt, 'osc_gen_sin_tri_saw_sqr.h2p')
+wt.to_wav('osc_gen_sin_tri_saw_sqr.wav')
 
 # Morph between two wavetables using the morph_with() method
-wt_1 = WaveTable(16, waves=[sg.sin() for _ in range(16)])
+wt_1 = WaveTable(16, waves=[sg.sin()] * 16)
 wt_2 = WaveTable(16, waves=[sg.pls(i / 16) for i in range(16)])
 wt_m = wt_1.morph_with(wt_2)
 ```
@@ -126,7 +129,7 @@ random_wave = (uniform(-1, 1) for _ in range(128))
 
 # Write to file.
 wt.waves = [sg.arb(random_wave)]
-zosc.write_wavetable(wt, 'osc_gen_random.h2p')
+wt.to_wav('osc_gen_random.wav')
 ```
 
 The custom signal generator function automatically normalises and scales any
@@ -146,7 +149,7 @@ duration, but also avoid any silence:
 ```python
 pulse_widths = (i / 17. for i in range(1, 17))
 wt.waves = [sg.pls(p) for p in pulse_widths]
-zosc.write_wavetable(wt, 'osc_gen_pwm.h2p')
+wt.to_wav('osc_gen_pwm.wav')
 ```
 
 ## Other Wave Shapes
@@ -166,7 +169,7 @@ wt.waves = [sgen.noise(0, 0.01),
             sgen.sqr_saw(0.75),
             sgen.sharkfin(0.04)]
             
-zosc.write_wavetable(wt, 'osc_gen_other.h2p')
+wt.to_wav('osc_gen_other.wav')
 ```
 
 ![](https://raw.githubusercontent.com/harveyormston/osc_gen/master/examples/images/fin_exp_sqrsaw.png)
