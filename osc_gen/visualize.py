@@ -63,13 +63,19 @@ def plot_wave(wave, title='', save=False):
     plt.gcf().clear()
 
 
-def plot_wavetable(wavetable, title='', save=False, spacing=0.1):
+def plot_wavetable(wavetable, title='', save=False, spacing=None):
     """ Plot all waves in a wavetable """
 
     colors = [CMAP(i) for i in np.linspace(0, 1, wavetable.num_slots)]
 
     if not save:
         plt.title(title, color=LIGHTGREY)
+
+    if spacing is None:
+        spacing = 0.0
+        for prev, wave in zip(wavetable.waves[:-1], wavetable.waves[1:]):
+            spacing = max(spacing, np.amax(prev - wave))
+        spacing += 0.1
 
     for i, wave in enumerate(wavetable.waves):
         plt.plot(wave + spacing * i, color=colors[i])
