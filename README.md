@@ -153,12 +153,19 @@ zosc.write_wavetable(wt, 'osc_gen_pwm.h2p')
 
 Other wave shapes are supported by SigGen, including:
 
-* Shark Fin
+* Noise
 * Exponential Saw
+* Exponential Sin
 * Square Saw
+* Shark Fin
 
 ```python
-wt.waves = [sig_gen.sharkfin(), sig_gen.exp_saw(), sig_gen.sqr_saw()]
+wt.waves = [sgen.noise(0, 0.01),
+            sgen.exp_saw(),
+            sgen.exp_sin(3),
+            sgen.sqr_saw(0.75),
+            sgen.sharkfin(0.04)]
+]
 zosc.write_wavetable(wt, 'osc_gen_other.h2p')
 ```
 
