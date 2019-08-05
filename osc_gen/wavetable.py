@@ -25,6 +25,7 @@ import numpy as np
 from osc_gen import wavfile
 from osc_gen import dsp
 from osc_gen import sig
+from osc_gen import zosc
 
 
 class WaveTable(object):
@@ -160,3 +161,20 @@ class WaveTable(object):
             return self
 
         return WaveTable(self.num_slots, waves=waves, wave_len=self.wave_len)
+
+    def to_wav(self, filename, samplerate=44100):
+        """ Write the wavetable to a wav file
+
+            @param filename str : wav file name
+            @param samplerate int : sample rate in Hz
+        """
+
+        wavfile.write_wavetable(self, filename, samplerate)
+
+    def to_h2p(self, filename):
+        """ Write the wavetable to a Zebra2 hp2 file
+
+            @param filename str : wav file name
+        """
+
+        zosc.write_wavetable(self, filename)
