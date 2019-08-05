@@ -114,10 +114,10 @@ class SigGen(object):
 
         return self.amp * self.arb(np.sin(np.pi * self.exp_saw(amount)[:-1]))
 
-    def sqr_saw(self):
+    def sqr_saw(self, mix=0.5):
         """ Square plus Saw wave """
 
-        return dsp.mix(self.saw(), self.sqr())
+        return dsp.mix(self.sqr(), self.saw(), amount=mix)
 
     def noise(self, seed=None, character=0.5):
         """ Noise waveform
