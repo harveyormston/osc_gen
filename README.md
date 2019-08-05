@@ -246,14 +246,14 @@ visualize.plot_wavetable(wtab)
 
 Samples can be used to populate a wavetable using one of two methods: slicing
 and resynthesis. Both methods involve finding the fundamental frequency of the
-audio in the wav file and generating wavetable slots containing a multiple
+audio in the wav file and generating wavetable slots containing multiple
 single cycles of the waveform.
 
-Slicing is relatively simple - the input audio is sliced at regular intervals
+Slicing is relatively simple: the input audio is sliced at regular intervals
 to extract individual cycles of the tone.
 
 Resynthesis, on the other hand, uses Fourier analysis to reconstruct cycles of
-the waveform based on the magnitude of the harmonics observed in the input.
+the waveform based on the harmonic series observed in the input.
 
 Slicing gives results which will match the original audio exactly, but small
 errors may result in unwanted harmonic content. Resynthesis gives more
@@ -262,10 +262,10 @@ audio.
 
 ```python
 # resynthesize
-wt = wavetable.WaveTable(16).from_wav('mywavefile.wav', sig_gen=sg, resynthesize=True)
+wt = wavetable.WaveTable(16, wave_len=128).from_wav('mywavefile.wav', resynthesize=True)
 
 # slice
-wt = wavetable.WaveTable(16).from_wav('mywavefile.wav', sig_gen=sg, resynthesize=False)
+wt = wavetable.WaveTable(16, wave_len=128).from_wav('mywavefile.wav', resynthesize=False)
 ```
 
 To extract a specific number of samples in each cycle, there are two options:
