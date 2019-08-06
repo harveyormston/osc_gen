@@ -80,6 +80,12 @@ class WaveTable(object):
         @returns np.ndarray : Wave at given index
         """
 
+        if self.wave_len is None:
+            if self.waves:
+                self.wave_len = len(self._waves[0])
+            else:
+                raise ValueError("Set wave_len or waves before calling get_wave_at_index")
+
         if index >= len(self.waves):
             return np.zeros(self.wave_len)
 
