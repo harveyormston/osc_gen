@@ -169,7 +169,7 @@ wt.waves = [sgen.noise(0, 0.01),
             sgen.exp_sin(3),
             sgen.sqr_saw(0.75),
             sgen.sharkfin(0.04)]
-            
+
 wt.to_wav('osc_gen_other.wav')
 ```
 
