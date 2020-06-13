@@ -173,7 +173,7 @@ wt.waves = [sgen.noise(0, 0.01),
 wt.to_wav('osc_gen_other.wav')
 ```
 
-![](https://raw.githubusercontent.com/harveyormston/osc_gen/master/examples/images/fin_exp_sqrsaw.png)
+![](https://raw.githubusercontent.com/harveyormston/osc_gen/main/examples/images/fin_exp_sqrsaw.png)
 
 ## Processing Waveforms
 
@@ -188,7 +188,7 @@ wtab = wavetable.WaveTable(16, waves)
 visualize.plot_wavetable(wtab)
 ```
 
-![](https://raw.githubusercontent.com/harveyormston/osc_gen/master/examples/images/clip.png)
+![](https://raw.githubusercontent.com/harveyormston/osc_gen/main/examples/images/clip.png)
 
 ```python
 # tube() applies tube saturation
@@ -197,7 +197,7 @@ wtab = wavetable.WaveTable(16, waves)
 visualize.plot_wavetable(wtab)
 ```
 
-![](https://raw.githubusercontent.com/harveyormston/osc_gen/master/examples/images/tube.png)
+![](https://raw.githubusercontent.com/harveyormston/osc_gen/main/examples/images/tube.png)
 
 ```python
 # fold() applies wave folding
@@ -206,7 +206,7 @@ wtab = wavetable.WaveTable(16, waves)
 visualize.plot_wavetable(wtab)
 ```
 
-![](https://raw.githubusercontent.com/harveyormston/osc_gen/master/examples/images/fold.png)
+![](https://raw.githubusercontent.com/harveyormston/osc_gen/main/examples/images/fold.png)
 
 ```python
 # shape applies polynomial wave-shaping
@@ -215,7 +215,7 @@ wtab = wavetable.WaveTable(16, waves)
 visualize.plot_wavetable(wtab)
 ```
 
-![](https://raw.githubusercontent.com/harveyormston/osc_gen/master/examples/images/shape.png)
+![](https://raw.githubusercontent.com/harveyormston/osc_gen/main/examples/images/shape.png)
 
 ```python
 # slew() smooths or sharpens the gradient of a waveform
@@ -225,7 +225,7 @@ wtab = wavetable.WaveTable(16, waves)
 visualize.plot_wavetable(wtab)
 ```
 
-![](https://raw.githubusercontent.com/harveyormston/osc_gen/master/examples/images/slew.png)
+![](https://raw.githubusercontent.com/harveyormston/osc_gen/main/examples/images/slew.png)
 
 ```python
 # downsample() lowers the sample-rate for aliasing effects
@@ -234,7 +234,7 @@ wtab = wavetable.WaveTable(8, waves)
 visualize.plot_wavetable(wtab)
 ```
 
-![](https://raw.githubusercontent.com/harveyormston/osc_gen/master/examples/images/downsample.png)
+![](https://raw.githubusercontent.com/harveyormston/osc_gen/main/examples/images/downsample.png)
 
 ```python
 # quantize() lowers the bit-depth for bit-crushing effects
@@ -243,7 +243,7 @@ wtab = wavetable.WaveTable(4, waves)
 visualize.plot_wavetable(wtab)
 ```
 
-![](https://raw.githubusercontent.com/harveyormston/osc_gen/master/examples/images/quantize.png)
+![](https://raw.githubusercontent.com/harveyormston/osc_gen/main/examples/images/quantize.png)
 
 
 # Using Samples
