@@ -230,10 +230,12 @@ def harmonic_series(inp):
     """ Find the harmonic series of a periodic input """
 
     fft_mult = min(64, inp.size // 501)
+    fft_mult = max(fft_mult, 1)
     fft_len = 501 * fft_mult
-    if inp.size < fft_len:
-        raise NotEnoughSamplesError(
-            "Got {0} samples, need at least {1}.".format(len(inp), fft_len))
+
+    # if the input has insufficient data, loop it a number of times
+    while inp.size < fft_len:
+        inp = np.tile(inp, 2)
 
     # produce symmetrical, windowed fft
     idx1 = int(np.floor((fft_len + 1) / 2))
@@ -247,6 +249,7 @@ def harmonic_series(inp):
 
     # peak amplitude assumed to be fundamental frequency
     i_fund = np.argmax(np.abs(fft))
+    i_fund = max(i_fund, 4)
 
     # get fft components from only the harmonics, harmonics are picked by
     # taking the value with the highest amplitude around each harmonic

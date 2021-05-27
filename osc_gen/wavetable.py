@@ -122,6 +122,11 @@ class WaveTable(object):
 
             num_sections = self.num_slots
 
+            # if the input has insufficient data, loop it a number of times
+            min_data_len = num_sections * 501
+            while data.size < min_data_len:
+                data = np.tile(data, 2)
+
             while True:
                 data = data[:data.size - (data.size % num_sections)]
                 sections = np.split(data, num_sections)
