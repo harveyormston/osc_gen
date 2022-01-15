@@ -59,9 +59,9 @@ These examples show how to:
 - Store a wavetable as a wav file.
 
 ```python
-import wavetable
-import sig
-import dsp
+from osc_gen import wavetable
+from osc_gen import sig
+from osc_gen import dsp
 
 
 # Create a signal generator.
