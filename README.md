@@ -136,6 +136,10 @@ The `arb()` method automatically normalises, scales and resamples any
 data you throw at it to fit it into the `SigGen`'s parameters, so the input can
 be any amplitude and any number of samples.
 
+Signals populated from a wav file can be morphed and have effects applied
+like any other signal. See examples of this in [morph_between_samples.py](examples/morph_between_samples.py).
+
+
 ## Pulse-width Modulation
 
 SigGen has a pulse wave generator too. Let's use that to make a pwm wavetable.
